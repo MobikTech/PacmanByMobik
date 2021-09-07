@@ -7,10 +7,10 @@ from Entity import Entity
 class Player(Entity):
     def __init__(self, group:pygame.sprite.Group , startPosition:Tuple[int, int], gmController):
         Entity.__init__(self, group, startPosition, 'Sprites/Pacman.png')
-        self.speed = 1
+        self.speed = 2
         self.currentDirection = pygame.K_d
         self.score = 0
-        self.hp = 1
+        self.hp = 3
         self.gmController = gmController
 
 
@@ -47,6 +47,7 @@ class Player(Entity):
             self.score += 10
             print(self.gmController.coinAmount)
         if self.gmController.coinAmount < 1:
+            self.gmController.gameOver = True
             print("end level")
 
 

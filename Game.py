@@ -29,11 +29,11 @@ class GameController(object):
         self.G_rikky = Ghost("Rikky", "Sprites/Rikky.png", self.sprites_group, self.ghostStartPosition, self.map_1)
         self.G_greenky = Ghost("Greenky", "Sprites/Greenky.png", self.sprites_group, self.ghostStartPosition, self.map_1)
         self.G_pinky = Ghost("Pinky", "Sprites/Pinky.png", self.sprites_group, self.ghostStartPosition, self.map_1)
-        self.G_clyde = Ghost("Clyde", "Sprites/Clyde.png", self.sprites_group, self.ghostStartPosition, self.map_1)
+        self.G_clyde = Ghost("Clyde", "Sprites/Clyne.png", self.sprites_group, self.ghostStartPosition, self.map_1)
 
         self.scoreText = TextObject('Fonts/Pinmolddemo-jEaxv.otf', 32, WHITE, (CENTER[0], CENTER[1] + CELL_SIZE * 2), "score: " + str(self.player.score))
         self.hpText = TextObject('Fonts/Pinmolddemo-jEaxv.otf', 32, WHITE, (CENTER[0] - CELL_SIZE * 11, CENTER[1] + CELL_SIZE * 2), "hp: " + str(self.player.hp))
-        self.gameOverText = TextObject('Fonts/Pinmolddemo-jEaxv.otf', 32, WHITE, (CENTER[0] - CELL_SIZE * 10, CENTER[1]), "game over")
+        self.gameOverText = TextObject('Fonts/Pinmolddemo-jEaxv.otf', 56, WHITE, (CENTER[0], CENTER[1] + CELL_SIZE * 5), "game over")
 
 
 
@@ -79,7 +79,8 @@ class GameController(object):
 
     def endGame(self):
         self.clearScreen()
-        self.hpText.textUpdate('game over', self.screen)
+        self.gameOverText.textUpdate('game over', self.screen)
+        self.scoreText.textUpdate('score: ' + str(self.player.score), self.screen)
 
     def clearScreen(self):
         self.screen.blit(self.map_1.background, self.map_1.background.get_rect())
@@ -124,7 +125,7 @@ class GameController(object):
         if pressedKey == pygame.K_w:
             if self.player.currentDirection == pygame.K_s:
                 return True
-            # Если центр спрайта игрока попадает в центр любой клетки на сетке, то он может сделать поворот на 90 градуосв
+            # Если центр спрайта игрока попадает в центр любой клетки на сетке,он проверяет возможность двигаться по направлению(если следущая клетка - дорога)
             if inSomeRect(playerCenterW, gridToWorldT(playerGridCell), CELL_RECT_SIDE) and \
                     self.map_1.colorMap[playerGridCell[0]][playerGridCell[1]] == MAP_CROSSROAD:
                 self.player.rect.center = gridToWorldT(playerGridCell)
