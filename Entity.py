@@ -1,6 +1,5 @@
 import pygame
 from Constants import *
-from typing import Tuple
 from CommonFuncs import *
 
 
@@ -12,3 +11,7 @@ class Entity(object):
         self.rect = self.sprite.rect = self.sprite.image.get_rect()
         self.startPosition = startPosition
         self.rect.center = self.startPosition
+
+    def respawn(self, startPos, startDir):
+        self.rect.center = startPos
+        self.currentDirection = startDir

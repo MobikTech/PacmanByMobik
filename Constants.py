@@ -31,3 +31,10 @@ UP = 1
 RIGHT = 2
 DOWN = 3
 LEFT = 4
+
+BFS = 0
+DFS = 1
+UCS = 2
+BFS_STR = "BFS"
+DFS_STR = "DFS"
+UCS_STR = "UCS"
