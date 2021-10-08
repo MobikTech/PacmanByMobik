@@ -1,34 +1,22 @@
 import pygame
+from pygame.surface import Surface
+
 from Constants import *
 from typing import Tuple
 
-def worldToGrid(worldXPos: int, worldYPos: int):
-    x = int(worldXPos / CELL_SIZE)
-    y = int(worldYPos / CELL_SIZE)
-    return (x, y)
+from Scripts.Entities.SpriteEntity import SpriteEntity
 
-def worldToGridT(worldPos:Tuple[int, int]):
-    x = int(worldPos[0] / CELL_SIZE)
-    y = int(worldPos[1] / CELL_SIZE)
-    return (x, y)
 
-def gridToWorld(gridXPos: int, gridYPos: int):
-    x = int(gridXPos * CELL_SIZE + CELL_SIZE/2)
-    y = int(gridYPos * CELL_SIZE + CELL_SIZE/2)
-    return (x, y)
-
-def gridToWorldT(gridPos:Tuple[int, int]):
-    x = int(gridPos[0] * CELL_SIZE + CELL_SIZE/2)
-    y = int(gridPos[1] * CELL_SIZE + CELL_SIZE/2)
-    return (x, y)
-
-def inSomeRect(point:Tuple[int, int], rectCenter:Tuple[int, int], rectSide:int):
-    if point[0] > rectCenter[0] - rectSide/2 and point[0] < rectCenter[0] + rectSide/2 and \
-        point[1] > rectCenter[1] - rectSide/2 and point[1] < rectCenter[1] + rectSide/2:
+def inSomeRect(point: Tuple[int, int],
+               rectCenter: Tuple[int, int],
+               rectSide: int):
+    if point[0] > rectCenter[0] - rectSide / 2 and point[0] < rectCenter[0] + rectSide / 2 and \
+            point[1] > rectCenter[1] - rectSide / 2 and point[1] < rectCenter[1] + rectSide / 2:
         return True
     return False
 
-def raycast(source:Tuple[int, int], map):
+
+def raycast(source: Tuple[int, int], map):
     cell = worldToGridT(source)
 
     if source != gridToWorldT(cell):
@@ -46,12 +34,14 @@ def raycast(source:Tuple[int, int], map):
         directions.append(LEFT)
     return directions
 
-def checkCollision(entity1, entity2):
+
+def checkCollision(SpriteEntity1, entity2):
     col = pygame.sprite.collide_rect(entity1.sprite, entity2.sprite)
     if col == True:
         entity1.collideGhost()
         entity2.collidePlayer()
         return True
+
 
 def findNearestNodeTo(worldPos, map):
     gridPos = worldToGridT(worldPos)
@@ -76,7 +66,6 @@ def findNearestNodeTo(worldPos, map):
         elif left and map.colorMap[gridPos[0] - rayLength][gridPos[1]] == MAP_WALL:
             left = False
 
-
         if top and map.colorMap[gridPos[0]][gridPos[1] - rayLength] == MAP_CROSSROAD:
             return nodes[(gridPos[0], gridPos[1] - rayLength)]
 
@@ -90,55 +79,6 @@ def findNearestNodeTo(worldPos, map):
             return nodes[(gridPos[0] - rayLength, gridPos[1])]
         rayLength += 1
 
-    # node = None
-    # topD = 0
-    # rightD = 0
-    # bottomD = 0
-    # leftD = 0
-    #
-    # currPos = worldToGridT(worldPos)
-    # while (map.colorMap[currPos[0]][currPos[1] - 1] not in (MAP_WALL, MAP_GHOSTS_START_POSITION, MAP_REST_SPACE)):
-    #     currPos = (currPos[0], currPos[1] - 1)
-    #     topD += 1
-    #     if map.colorMap[currPos[0]][currPos[1]] in (MAP_CROSSROAD, MAP_PACMAN_START_POSITION):
-    #         break
-    # currPos = worldToGridT(worldPos)
-    # while (map.colorMap[currPos[0] + 1][currPos[1]] not in (MAP_WALL, MAP_GHOSTS_START_POSITION, MAP_REST_SPACE)):
-    #     currPos = (currPos[0] + 1, currPos[1])
-    #     rightD += 1
-    #     if map.colorMap[currPos[0]][currPos[1]] in (MAP_CROSSROAD, MAP_PACMAN_START_POSITION):
-    #         break
-    # currPos = worldToGridT(worldPos)
-    # while (map.colorMap[currPos[0]][currPos[1] + 1] not in (MAP_WALL, MAP_GHOSTS_START_POSITION, MAP_REST_SPACE)):
-    #     currPos = (currPos[0], currPos[1] + 1)
-    #     bottomD += 1
-    #     if map.colorMap[currPos[0]][currPos[1]] in (MAP_CROSSROAD, MAP_PACMAN_START_POSITION):
-    #         break
-    # currPos = worldToGridT(worldPos)
-    # while (map.colorMap[currPos[0] - 1][currPos[1]] not in (MAP_WALL, MAP_GHOSTS_START_POSITION, MAP_REST_SPACE)):
-    #     currPos = (currPos[0] - 1, currPos[1])
-    #     leftD += 1
-    #     if map.colorMap[currPos[0]][currPos[1]] in (MAP_CROSSROAD, MAP_PACMAN_START_POSITION):
-    #         break
-    #
-    # minDistance = 100
-    # minDir = None
-    # nodePositon = gridPos
-    # dirDict = {UP: topD, RIGHT: rightD, DOWN: bottomD, LEFT: leftD}
-    # for dir in dirDict.keys():
-    #     if dirDict[dir] != 0 and dirDict[dir] < minDistance:
-    #         minDistance = dirDict[dir]
-    #         minDir = dir
-    # if minDir == UP:
-    #     nodePositon = (nodePositon[0], nodePositon[1] - minDistance)
-    # elif minDir == RIGHT:
-    #     nodePositon = (nodePositon[0] + minDistance, nodePositon[1])
-    # elif minDir == DOWN:
-    #     nodePositon = (nodePositon[0], nodePositon[1] + minDistance)
-    # elif minDir == LEFT:
-    #     nodePositon = (nodePositon[0] - minDistance, nodePositon[1])
-    # node = map.nodeDictionary[nodePositon]
-    # return node
 
 def DrawPath(path: list, color, screen):
     prevNode = None
@@ -159,3 +99,55 @@ def DrawPath(path: list, color, screen):
                     currCoords = (currCoords[0] - 1, currCoords[1])
                 pygame.draw.circle(screen, color, gridToWorldT(currCoords), pointSize)
         prevNode = node
+
+
+def moveSpriteEntity(sprite: SpriteEntity, direction: int, length: int):
+    if direction == DIRECTIONS.UP:
+        sprite.rect.y -= length
+    elif direction == DIRECTIONS.DOWN:
+        sprite.rect.y += length
+    elif direction == DIRECTIONS.RIGHT:
+        sprite.rect.x += length
+    elif direction == DIRECTIONS.LEFT:
+        sprite.rect.x -= length
+
+# remove
+def getDirection(pressedKey: int):
+    if pressedKey == pygame.K_w:
+        return DIRECTIONS.UP
+    elif pressedKey == pygame.K_s:
+        return DIRECTIONS.DOWN
+    elif pressedKey == pygame.K_d:
+        return DIRECTIONS.RIGHT
+    elif pressedKey == pygame.K_a:
+        return DIRECTIONS.LEFT
+
+def defineDirection(pressedKeys):
+    if pressedKeys[pygame.K_w]:
+        return DIRECTIONS.UP
+    elif pressedKeys[pygame.K_s]:
+        return DIRECTIONS.DOWN
+    elif pressedKeys[pygame.K_d]:
+        return DIRECTIONS.RIGHT
+    elif pressedKeys[pygame.K_a]:
+        return DIRECTIONS.LEFT
+    return None
+
+def getColorMap(pixelColorImage: Surface):
+    pixelMap = pygame.pixelarray.PixelArray(pixelColorImage)
+    x, y = pixelMap.shape
+    colorMap = [[0 for x in range(x)] for y in range(y)]
+    for i in range(x):
+        for k in range(y):
+            colorMap[i][k] = pixelColorImage.unmap_rgb(pixelMap[i][k])
+    return colorMap
+
+def directionToVector(direction: int):
+    if direction == DIRECTIONS.UP:
+        return VECTORS.VECTOR_UP
+    if direction == DIRECTIONS.DOWN:
+        return VECTORS.VECTOR_DOWN
+    if direction == DIRECTIONS.RIGHT:
+        return VECTORS.VECTOR_RIGHT
+    if direction == DIRECTIONS.LEFT:
+        return VECTORS.VECTOR_LEFT

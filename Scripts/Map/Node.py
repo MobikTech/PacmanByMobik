@@ -3,24 +3,30 @@ from Scripts.Common.CommonFuncs import *
 # from Player import Player
 
 class Node(object):
-    def __init__(self, gridPos: Tuple[int, int]):
-        self.gridPosition = gridPos
-        self.topN = None
-        self.rightN = None
-        self.bottomN = None
-        self.leftN = None
-        self.isVisited = False
+    def __init__(self, gridPosition: Tuple[int, int]):
+        self.gridPosition = gridPosition
+        self.neighbourNodes = dict([(DIRECTIONS.UP, None),
+                                   (DIRECTIONS.DOWN, None),
+                                   (DIRECTIONS.RIGHT, None),
+                                   (DIRECTIONS.LEFT, None)])
 
-        self.toTopDistance = None
-        self.toRightDistance = None
-        self.toBottomDistance = None
-        self.toLeftDistance = None
+        # self.topN = None
+        # self.rightN = None
+        # self.bottomN = None
+        # self.leftN = None
 
-        self.distanceToThis = None
+        # self.isVisited = False
 
-    # def addToPath(self, node):
-    #     self.path.append(node)
-    #     return self
-    #
-    # def clearPath(self):
-    #     self.path = []
+        # self.toTopDistance = None
+        # self.toRightDistance = None
+        # self.toBottomDistance = None
+        # self.toLeftDistance = None
+
+        # self.distanceToThis = None
+
+
+        # self.neighbourNodesDistances = dict([(DIRECTIONS.UP, None),
+        #                             (DIRECTIONS.DOWN, None),
+        #                             (DIRECTIONS.RIGHT, None),
+        #                             (DIRECTIONS.LEFT, None)])
+

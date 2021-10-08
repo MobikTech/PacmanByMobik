@@ -1,6 +1,6 @@
-from Scripts.Entity.Entitys.Player import *
+from Scripts.Entities.Sprites.PlayerSprite import *
 from Scripts.Map.Map import Map
-from Scripts.Entity.Entitys.Ghost import Ghost
+from Scripts.Entities.Sprites.GhostSprite import GhostSprite
 from Text import TextObject
 from SearchAlgorithmes import *
 
@@ -25,14 +25,14 @@ class GameController(object):
         self.map = self.map_1
         self.map.mapScan(self)
 
-        self.player = Player(self.sprites_group, self.map.playerStartPosition, self)
-        self.G_rikky = Ghost("Rikky", "../../Sprites/Rikky.png", self.sprites_group, self.map.ghostsStartPosition, self.map, RED)
+        self.player = PlayerSprite(self.sprites_group, self.map.playerStartPosition, self)
+        self.G_rikky = GhostSprite("Rikky", "../../Sprites/Rikky.png", self.sprites_group, self.map.ghostsStartPosition, self.map, RED)
         # self.G_rikky2 = Ghost("Rikky2", "Sprites/Rikky.png", self.sprites_group, self.map.ghostsStartPosition, self.map)
         # self.G_rikky3 = Ghost("Rikky3", "Sprites/Rikky.png", self.sprites_group, self.map.ghostsStartPosition, self.map)
 
-        self.G_greenky = Ghost("Greenky", "../../Sprites/Greenky.png", self.sprites_group, self.map.ghostsStartPosition, self.map, GREEN)
-        self.G_pinky = Ghost("Pinky", "../../Sprites/Pinky.png", self.sprites_group, self.map.ghostsStartPosition, self.map, PINK)
-        self.G_clyne = Ghost("Clyde", "../../Sprites/Clyne.png", self.sprites_group, self.map.ghostsStartPosition, self.map, YELLOW)
+        self.G_greenky = GhostSprite("Greenky", "../../Sprites/Greenky.png", self.sprites_group, self.map.ghostsStartPosition, self.map, GREEN)
+        self.G_pinky = GhostSprite("Pinky", "../../Sprites/Pinky.png", self.sprites_group, self.map.ghostsStartPosition, self.map, PINK)
+        self.G_clyne = GhostSprite("Clyde", "../../Sprites/Clyne.png", self.sprites_group, self.map.ghostsStartPosition, self.map, YELLOW)
 
         self.timer = Timer()
         self.currentAlgorithm = BFS
