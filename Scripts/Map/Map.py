@@ -1,7 +1,5 @@
-import pygame
-from Constants import *
-from CommonFuncs import *
-from Coin import Coin
+from Scripts.Common.CommonFuncs import *
+from Scripts.Entity.Entitys.Coin import Coin
 from Node import Node
 
 
@@ -38,6 +36,10 @@ class Map(object):
     def resetVisited(self):
         for node in self.nodeDictionary:
             self.nodeDictionary[node].isVisited = False
+
+    def resetDistances(self):
+        for node in self.nodeDictionary:
+            self.nodeDictionary[node].distanceToThis = None
 
     def mapScan(self, gameCtr):
         map = self.colorMap

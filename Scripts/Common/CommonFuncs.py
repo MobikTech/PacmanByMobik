@@ -61,18 +61,32 @@ def findNearestNodeTo(worldPos, map):
         return nodes[gridPos]
 
     rayLength = 0
+    top = True
+    right = True
+    bottom = True
+    left = True
 
     while True:
-        if map.colorMap[gridPos[0]][gridPos[1] - rayLength] == MAP_CROSSROAD:
+        if top and map.colorMap[gridPos[0]][gridPos[1] - rayLength] == MAP_WALL:
+            top = False
+        elif right and map.colorMap[gridPos[0] + rayLength][gridPos[1]] == MAP_WALL:
+            right = False
+        elif bottom and map.colorMap[gridPos[0]][gridPos[1] + rayLength] == MAP_WALL:
+            bottom = False
+        elif left and map.colorMap[gridPos[0] - rayLength][gridPos[1]] == MAP_WALL:
+            left = False
+
+
+        if top and map.colorMap[gridPos[0]][gridPos[1] - rayLength] == MAP_CROSSROAD:
             return nodes[(gridPos[0], gridPos[1] - rayLength)]
 
-        elif map.colorMap[gridPos[0] + rayLength][gridPos[1]] == MAP_CROSSROAD:
+        elif right and map.colorMap[gridPos[0] + rayLength][gridPos[1]] == MAP_CROSSROAD:
             return nodes[(gridPos[0] + rayLength, gridPos[1])]
 
-        elif map.colorMap[gridPos[0]][gridPos[1] + rayLength] == MAP_CROSSROAD:
+        elif bottom and map.colorMap[gridPos[0]][gridPos[1] + rayLength] == MAP_CROSSROAD:
             return nodes[(gridPos[0], gridPos[1] + rayLength)]
 
-        elif map.colorMap[gridPos[0] - rayLength][gridPos[1]] == MAP_CROSSROAD:
+        elif left and map.colorMap[gridPos[0] - rayLength][gridPos[1]] == MAP_CROSSROAD:
             return nodes[(gridPos[0] - rayLength, gridPos[1])]
         rayLength += 1
 

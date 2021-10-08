@@ -1,6 +1,4 @@
-import pygame
-from Constants import *
-from CommonFuncs import *
+from Scripts.Common.CommonFuncs import *
 
 
 class Entity(object):

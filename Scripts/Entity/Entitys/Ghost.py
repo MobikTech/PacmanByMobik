@@ -1,14 +1,7 @@
-import pygame
-from Constants import *
-from typing import Tuple
 from CommonFuncs import *
 from Map import Map
-from Player import Player
-from Entity import Entity
-from Node import Node
-from Timer import Timer
+from Scripts.Entity.Entity import Entity
 import random
-import collections
 
 
 class Ghost(Entity):

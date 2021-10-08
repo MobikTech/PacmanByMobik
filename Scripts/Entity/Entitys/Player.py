@@ -1,11 +1,9 @@
-import pygame
-from Constants import *
 from CommonFuncs import *
-from Entity import Entity
+from Scripts.Entity.Entity import Entity
 
 class Player(Entity):
     def __init__(self, group:pygame.sprite.Group , startPosition:Tuple[int, int], gmController):
-        Entity.__init__(self, group, startPosition, 'Sprites/Pacman.png')
+        Entity.__init__(self, group, startPosition, '../../../Sprites/Pacman.png')
         self.speed = 2
         self.startDirection = pygame.K_d
         self.currentDirection = self.startDirection

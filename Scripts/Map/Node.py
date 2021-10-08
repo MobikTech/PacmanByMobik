@@ -1,5 +1,4 @@
-import pygame
-from CommonFuncs import *
+from Scripts.Common.CommonFuncs import *
 # from Map import Map
 # from Player import Player
 
@@ -17,7 +16,7 @@ class Node(object):
         self.toBottomDistance = None
         self.toLeftDistance = None
 
-
+        self.distanceToThis = None
 
     # def addToPath(self, node):
     #     self.path.append(node)
