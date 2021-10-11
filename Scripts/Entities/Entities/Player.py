@@ -2,144 +2,68 @@ from Scripts.Common.Constants import *
 from Scripts.Common.CommonFuncs import *
 from pygame.sprite import Group
 
+from Scripts.Entities.CollidableEntity import CollidableEntity
 from Scripts.Entities.SpriteEntity import SpriteEntity
 
 
-class Player():
+class Player(CollidableEntity):
     PLAYER_SPEED = 2
+    START_HP = 1
+    GHOST_DAMAGE = 1
+    COIN_SCORE_COST = 10
 
-    def __init__(self, group: Group, startPosition: Tuple[int, int], gmController):
-        self.sprite = SpriteEntity(group, startPosition, '../../../Sprites/Pacman.png')
+    def __init__(self,
+                 spriteGroup: Group,
+                 startWorldPosition: Tuple[int, int],
+                 colorMap: list[list[tuple[int, int, int, int]]]):
+        self.spriteEntity = SpriteEntity(SPRITE_TYPES.PACMAN, spriteGroup, startWorldPosition, MAIN_DIRECTORY + '\Sprites\Pacman.png')
+        self.colorMap = colorMap
         self.speed = Player.PLAYER_SPEED
+        # refactor: add sprite to each direction
         self.startDirection = DIRECTIONS.RIGHT
         self.currentDirection = self.startDirection
 
         # refactor fields
         self.score = 0
-        self.hp = 5
-        self.gmController = gmController
+        self.hp = Player.START_HP
 
     def tryMovePlayer(self):
+        newDirection = self._tryChangeDirection(self.colorMap, self.spriteEntity, self.currentDirection)
+        if newDirection != None:
+            self.currentDirection = newDirection
+
+        if self._canMove(self.spriteEntity, self.currentDirection, self.colorMap):
+            moveSpriteEntity(self.spriteEntity, self.currentDirection, self.speed)
+
+    def _tryChangeDirection(self, colorMap: list[list[tuple[int, int, int, int]]], sprite: SpriteEntity,
+                            currentDirection: int):
         pressedKeys = pygame.key.get_pressed()
-
         direction = defineDirection(pressedKeys)
-        if direction != None and self._isValidDirection(direction):
-            # move
-            pass
+        if direction in (None, currentDirection):
+            return None
+        if direction == getOppositeDirection(currentDirection):
+            return direction
+        if inCellCenter(sprite.rect.center, 2):
+            playerGridPosition = worldToGridT(sprite.rect.center)
+            if getCellType(colorMap, playerGridPosition) == CELL_TYPE.MAP_CROSSROAD:
+                # aligning in cell center
+                sprite.rect.center = gridToWorldT(playerGridPosition)
+                return direction
+        return None
 
-        if pressedKeys[pygame.K_w] and self._isValidDirection(pygame.K_w):
-            self.currentDirection = pygame.K_w
-        if pressedKeys[pygame.K_s] and self._isValidDirection(pygame.K_s):
-            self.currentDirection = pygame.K_s
-        if pressedKeys[pygame.K_d] and self._isValidDirection(pygame.K_d):
-            self.currentDirection = pygame.K_d
-        if pressedKeys[pygame.K_a] and self._isValidDirection(pygame.K_a):
-            self.currentDirection = pygame.K_a
-
-        if self._canMove(self.currentDirection):
-            self._move(self.currentDirection)
-
-    def _move(self, direction):
-        moveSpriteEntity(self.sprite, direction, self.speed)
-
-    def _isValidDirection(self, direction: int):
-
-    # def collideGhost(self):
-    #     self.hp -= 1
-    #     if self.hp < 1:
-    #         print('game over')
-    #         self.gmController.gameOver = True
-    #
-    # def _collectCoins(self):
-    #     gridX, gridY = worldToGridT(self.rect.center)
-    #     if self.gmController.coinsMap[gridX][gridY] != None:
-    #         self.gmController.coinsMap[gridX][gridY].sprite.remove(self.gmController.sprites_group)
-    #         self.gmController.coinsMap[gridX][gridY] = None
-    #         self.gmController.coinAmount -= 1
-    #         self.score += 10
-    #         # print(self.gmController.coinAmount)
-    #     if self.gmController.coinAmount < 1:
-    #         self.gmController.gameOver = True
-    #         print("end level")
-    #
-    # def _move(self, pressedKey: int):
-    #     if pressedKey == pygame.K_w:
-    #         self.rect.y -= self.speed
-    #     elif pressedKey == pygame.K_s:
-    #         self.rect.y += self.speed
-    #     elif pressedKey == pygame.K_d:
-    #         self.rect.x += self.speed
-    #     elif pressedKey == pygame.K_a:
-    #         self.rect.x -= self.speed
-    #     self._collectCoins()
-    #
-    def isValidDirection(self, pressedKey:int):
-        playerCenterW = self.rect.center
-        playerGridCell = worldToGridT(playerCenterW)
-        map = self.gmController.map
-
-        if pressedKey == self.currentDirection:
-            return False
-        if pressedKey == pygame.K_w:
-            if self.currentDirection == pygame.K_s:
-                return True
-            # Если центр спрайта игрока попадает в центр любой клетки на сетке,он проверяет возможность двигаться по направлению(если следущая клетка - дорога)
-            if inSomeRect(playerCenterW, gridToWorldT(playerGridCell), CELL_RECT_SIDE) and \
-                    map.colorMap[playerGridCell[0]][playerGridCell[1]] == MAP_CROSSROAD:
-                self.rect.center = gridToWorldT(playerGridCell)
-                return True
-        elif pressedKey == pygame.K_s:
-            if self.currentDirection == pygame.K_w:
-                return True
-            if inSomeRect(playerCenterW, gridToWorldT(playerGridCell), CELL_RECT_SIDE) and \
-                    map.colorMap[playerGridCell[0]][playerGridCell[1]] == MAP_CROSSROAD:
-                self.rect.center = gridToWorldT(playerGridCell)
-                return True
-        elif pressedKey == pygame.K_d:
-            if self.currentDirection == pygame.K_a:
-                return True
-            if inSomeRect(playerCenterW, gridToWorldT(playerGridCell), CELL_RECT_SIDE) and \
-                    map.colorMap[playerGridCell[0]][playerGridCell[1]] == MAP_CROSSROAD:
-                self.rect.center = gridToWorldT(playerGridCell)
-                return True
-        elif pressedKey == pygame.K_a:
-            if self.currentDirection == pygame.K_d:
-                return True
-            if inSomeRect(playerCenterW, gridToWorldT(playerGridCell), CELL_RECT_SIDE) and \
-                    map.colorMap[playerGridCell[0]][playerGridCell[1]] == MAP_CROSSROAD:
-                self.rect.center = gridToWorldT(playerGridCell)
-                return True
+    def _canMove(self, sprite: SpriteEntity, currentDirection: int, colorMap: list[list[tuple[int, int, int, int]]]):
+        nextCellPosition = worldToGridT(getOffsettedPoint(sprite.rect.center, currentDirection, CELL_HALF_SIZE + 1))
+        nextCellType = getCellType(colorMap, nextCellPosition)
+        if nextCellType in (CELL_TYPE.MAP_ROAD, CELL_TYPE.MAP_CROSSROAD, CELL_TYPE.MAP_PACMAN_START_POSITION):
+            return True
         return False
-    #
-    # def movePlayer(self):
-    #     pressedKeys = pygame.key.get_pressed()
-    #
-    #     if pressedKeys[pygame.K_w] and self._isValidDirection(pygame.K_w):
-    #         self.currentDirection = pygame.K_w
-    #     if pressedKeys[pygame.K_s] and self._isValidDirection(pygame.K_s):
-    #         self.currentDirection = pygame.K_s
-    #     if pressedKeys[pygame.K_d] and self._isValidDirection(pygame.K_d):
-    #         self.currentDirection = pygame.K_d
-    #     if pressedKeys[pygame.K_a] and self._isValidDirection(pygame.K_a):
-    #         self.currentDirection = pygame.K_a
-    #
-    #     if self._canMove(self.currentDirection):
-    #         self._move(self.currentDirection)
-    #
-    # def _canMove(self, currentDirection:int):
-    #     map = self.gmController.map
-    #     tlX, tlY = worldToGridT(self.rect.topleft)
-    #     brX, brY = worldToGridT(self.rect.bottomright)
-    #
-    #     if currentDirection == pygame.K_w:
-    #         if map.colorMap[brX][brY - 1] not in (MAP_WALL, MAP_SPIRIT_DOOR):
-    #             return True
-    #     elif currentDirection == pygame.K_s:
-    #         if map.colorMap[tlX][tlY + 1] not in (MAP_WALL, MAP_SPIRIT_DOOR):
-    #             return True
-    #     elif currentDirection == pygame.K_d:
-    #         if map.colorMap[tlX + 1][tlY] not in (MAP_WALL, MAP_SPIRIT_DOOR):
-    #             return True
-    #     elif currentDirection == pygame.K_a:
-    #         if map.colorMap[brX - 1][brY] not in (MAP_WALL, MAP_SPIRIT_DOOR):
-    #             return True
+
+    def collisionHandler(self, sprite: SpriteEntity):
+        if sprite.spriteType == SPRITE_TYPES.GHOST:
+            self.hp -= Player.GHOST_DAMAGE
+        if sprite.spriteType == SPRITE_TYPES.COIN:
+            self.score += Player.COIN_SCORE_COST
+
+    def respawn(self):
+        self.spriteEntity.sprite.rect.center = self.spriteEntity.startPosition
+        self.currentDirection = self.startDirection

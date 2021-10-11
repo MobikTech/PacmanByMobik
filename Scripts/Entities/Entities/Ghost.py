@@ -1,49 +1,88 @@
 from pygame.sprite import Group
+from Scripts.Common.CommonFuncs import *
 from Scripts.Common.CoordsConverter import *
 from Scripts.Common.Constants import *
-from Scripts.Map.Map import Map
+from Scripts.Entities.CollidableEntity import CollidableEntity
 from Scripts.Entities.SpriteEntity import SpriteEntity
-
 import random
 
 
-
-class Ghost():
-
+class Ghost(CollidableEntity):
     GHOST_SPEED = 1
 
     def __init__(self, spriteGroup: Group,
-                 startPosition: Tuple[int, int],
-                 file: str,
+                 startWorldPosition: Tuple[int, int],
+                 spriteFile: str,
                  name: str,
-                 map: Map,
+                 colorMap: list[list[tuple[int, int, int, int]]],
+                 # refactor
                  pathColor: Tuple[int, int, int, int]):
-        self.sprite = SpriteEntity(spriteGroup, startPosition, file)
+        self.spriteEntity = SpriteEntity(SPRITE_TYPES.GHOST, spriteGroup, startWorldPosition, spriteFile)
         self.name = name
-        self.map = map
-        self.pathColor = pathColor
+        self.colorMap = colorMap
+
         self.speed = Ghost.GHOST_SPEED
         self.startDirection = DIRECTIONS.UP
         self.currentDirection = self.startDirection
 
-    # def move(self):
-    #     cell = worldToGridT(self.sprite.rect.center)
-    #     if self.map.colorMap[cell[0]][cell[1]] == CELL_TYPE.MAP_CROSSROAD:
-    #         directions = raycast(self.rect.center, self.map)
-    #         if len(directions) > 0:
-    #             self.currentDirection = random.choice(directions)
-    #     self.moveByDirection(self.currentDirection)
-    #
-    #
-    # def moveByDirection(self, direction: int):
-    #     if direction == UP:
-    #         self.rect.y -= self.speed
-    #     elif direction == DOWN:
-    #         self.rect.y += self.speed
-    #     elif direction == RIGHT:
-    #         self.rect.x += self.speed
-    #     elif direction == LEFT:
-    #         self.rect.x -= self.speed
-    #
-    # def collidePlayer(self):
-    #     print(self.name)
+        self.pathColor = pathColor
+
+    def moveGhost(self):
+        newDirection = self._tryRandomChangeDirection(self.colorMap, self.spriteEntity)
+        if newDirection != None:
+            self.currentDirection = newDirection
+        moveSpriteEntity(self.spriteEntity, self.currentDirection, self.speed)
+
+    def _tryRandomChangeDirection(self, colorMap: list[list[tuple[int, int, int, int]]], sprite: SpriteEntity):
+        possibleDirections = getPossibleDirections(sprite, colorMap)
+
+        if inCellCenter(sprite.rect.center, 1):
+            playerGridPosition = worldToGridT(sprite.rect.center)
+            if getCellType(colorMap, playerGridPosition) == CELL_TYPE.MAP_CROSSROAD:
+                sprite.rect.center = gridToWorldT(playerGridPosition)
+                return random.choice(possibleDirections)
+        return None
+
+    def collisionHandler(self, sprite: SpriteEntity):
+        if sprite.spriteType == SPRITE_TYPES.PACMAN:
+            pass
+        elif sprite.spriteType == SPRITE_TYPES.COIN:
+            pass
+
+    def respawn(self):
+        self.spriteEntity.sprite.rect.center = self.spriteEntity.startPosition
+        self.currentDirection = self.startDirection
+
+
+def getGhostName(type: int):
+    if type == MOVABLE_ENTITIES.GHOST_RIKKO:
+        return 'Rikko'
+    elif type == MOVABLE_ENTITIES.GHOST_GREENKY:
+        return 'Greenky'
+    elif type == MOVABLE_ENTITIES.GHOST_PINKY:
+        return 'Pinky'
+    elif type == MOVABLE_ENTITIES.GHOST_CLYNE:
+        return 'Clyne'
+    return None
+
+def getGhostColor(type: int):
+    if type == COLORS.RED:
+        return 'Rikko'
+    elif type == COLORS.GREEN:
+        return 'Greenky'
+    elif type == COLORS.PINK:
+        return 'Pinky'
+    elif type == COLORS.YELLOW:
+        return 'Clyne'
+    return None
+
+def getGhostType(name: str):
+    if name == 'Rikko':
+        return MOVABLE_ENTITIES.GHOST_RIKKO
+    elif name == 'Greenky':
+        return MOVABLE_ENTITIES.GHOST_GREENKY
+    elif name == 'Pinky':
+        return MOVABLE_ENTITIES.GHOST_PINKY
+    elif name == 'Clyne':
+        return MOVABLE_ENTITIES.GHOST_CLYNE
+    return None

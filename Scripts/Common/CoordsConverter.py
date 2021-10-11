@@ -1,4 +1,4 @@
-from Constants import *
+from Scripts.Common.Constants import *
 from typing import Tuple
 
 

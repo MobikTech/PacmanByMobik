@@ -5,10 +5,10 @@ from Scripts.Common.CommonFuncs import *
 class Node(object):
     def __init__(self, gridPosition: Tuple[int, int]):
         self.gridPosition = gridPosition
-        self.neighbourNodes = dict([(DIRECTIONS.UP, None),
-                                   (DIRECTIONS.DOWN, None),
-                                   (DIRECTIONS.RIGHT, None),
-                                   (DIRECTIONS.LEFT, None)])
+        self.neighbourNodesAndDistances = dict([(DIRECTIONS.UP, None),
+                                                (DIRECTIONS.DOWN, None),
+                                                (DIRECTIONS.RIGHT, None),
+                                                (DIRECTIONS.LEFT, None)])
 
         # self.topN = None
         # self.rightN = None

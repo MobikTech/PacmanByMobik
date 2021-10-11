@@ -1,11 +1,16 @@
-import pygame
 from typing import Tuple
+from pygame.font import Font
+
+from Scripts.Common.Constants import *
+
 
 class TextObject(object):
-    def __init__(self, fontFile: str, fontSize: int, fontColor: tuple, position: Tuple[int, int], text: str):
-        self.fontColor = fontColor
-        self.position = position
-        self.font = pygame.font.Font(fontFile, fontSize)
+    FONT_PATH = 'D:\Projects\PYTHON\PacmanByMobik\Fonts\Pinmolddemo-jEaxv.otf'
+    FONT_COLOR = COLORS.WHITE
+    def __init__(self, fontSize: int, worldPosition: Tuple[int, int], text: str):
+        self.fontColor = TextObject.FONT_COLOR
+        self.position = worldPosition
+        self.font = Font(TextObject.FONT_PATH, fontSize)
         self.textSurface = self.font.render(text, True, self.fontColor)
         self.rect = self.textSurface.get_rect()
         self.rect.center = self.position
@@ -16,5 +21,3 @@ class TextObject(object):
         self.rect.center = self.position
 
         surface.blit(self.textSurface, self.rect)
-
-

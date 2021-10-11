@@ -1,5 +1,6 @@
 from Scripts.Common.CommonFuncs import *
-from Node import Node
+from Scripts.Map.Node import Node
+
 
 def bfs(startNode: Node, targetNode: Node, color, screen, map):
     queue = [(startNode, [startNode])]
