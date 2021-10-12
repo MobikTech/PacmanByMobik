@@ -17,16 +17,12 @@ from Scripts.Common.CoordsConverter import *
 
 
 class Map(object):
-    def __init__(self,
-                 colorMap: list[list[tuple[int, int, int, int]]],
-                 backgroundImage: Surface):
+    def __init__(self, colorMap: list[list[tuple[int, int, int, int]]]):
         self.colorMap = colorMap
 
         # refactor: add random generation of background image
         self.background = getSurface(colorMap, SCREEN_SIZE)
-        self.background.get_rect().center = CENTER
-        # self.sprite = Sprite()
-        # self.sprite.image = backgroundImage
+        self.background.get_rect().center = CENTER_WORLD_SPACE
 
 
         self.playerStartWorldPosition = None
@@ -86,21 +82,28 @@ def getSurface(colorMap: list[list[tuple[int, int, int, int]]], screenSize: Tupl
 def getCellSpriteType(color: Tuple[int, int, int, int]):
     if color in [CELL_TYPE.MAP_WALL]:
         return SPRITE_TYPES.CELL_WALL
-    if color in [CELL_TYPE.MAP_ROAD, CELL_TYPE.MAP_CROSSROAD, CELL_TYPE.MAP_PACMAN_START_POSITION, CELL_TYPE.MAP_REST_SPACE]:
+    if color in [CELL_TYPE.MAP_ROAD, CELL_TYPE.MAP_PACMAN_START_POSITION, CELL_TYPE.MAP_REST_SPACE]:
         return SPRITE_TYPES.CELL_ROAD
     if color in [CELL_TYPE.MAP_GHOSTS_START_POSITION]:
         return SPRITE_TYPES.CELL_DOOR
+    if color in [CELL_TYPE.MAP_CROSSROAD]:
+        return SPRITE_TYPES.CELL_CROSSROAD
     raise NotImplementedError
 
 
 def getCellSpritePath(cellSpriteType: int):
     path = MAIN_DIRECTORY + '\Sprites\CellSprites'
-    if cellSpriteType == SPRITE_TYPES.CELL_ROAD:
+    # if cellSpriteType == SPRITE_TYPES.CELL_ROAD:
+    #     return path + '\CellRoad.png'
+    # if cellSpriteType == SPRITE_TYPES.CELL_CROSSROAD:
+    #     return path + '\CellCrossroad.png'
+    if cellSpriteType in [SPRITE_TYPES.CELL_ROAD, SPRITE_TYPES.CELL_CROSSROAD]:
         return path + '\CellRoad.png'
     if cellSpriteType == SPRITE_TYPES.CELL_WALL:
         return path + '\CellWall.png'
     if cellSpriteType == SPRITE_TYPES.CELL_DOOR:
         return path + '\CellGhostDoor.png'
+
     raise NotImplementedError
 
     # # refactor

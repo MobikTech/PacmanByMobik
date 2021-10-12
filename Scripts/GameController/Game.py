@@ -1,4 +1,7 @@
+from pygame.constants import KEYDOWN, K_ESCAPE, QUIT
 from pygame.image import load
+
+from Scripts.Common.MazeGenerator import MazeGenerator
 from Scripts.Entities.Entities.Coin import *
 from Scripts.Entities.Entities.Ghost import *
 from Scripts.Entities.Entities.Player import Player
@@ -7,9 +10,9 @@ from Scripts.Other.TextObject import TextObject
 
 
 class GameController(object):
-    HP_MARKER_POSITION = (CENTER[0] - CELL_SIZE * 11, CENTER[1] + CELL_SIZE * 2)
-    SCORE_MARKER_POSITION = (CENTER[0], CENTER[1] + CELL_SIZE * 2)
-    GAME_OVER_MARKER_POSITION = (CENTER[0], CENTER[1] + CELL_SIZE * 5)
+    HP_MARKER_POSITION = (CENTER_WORLD_SPACE[0] - CELL_SIZE * 11, CENTER_WORLD_SPACE[1] + CELL_SIZE * 2)
+    SCORE_MARKER_POSITION = (CENTER_WORLD_SPACE[0], CENTER_WORLD_SPACE[1] + CELL_SIZE * 2)
+    GAME_OVER_MARKER_POSITION = (CENTER_WORLD_SPACE[0], CENTER_WORLD_SPACE[1] + CELL_SIZE * 5)
 
     def __init__(self):
         pygame.init()
@@ -17,24 +20,26 @@ class GameController(object):
         self.clock = pygame.time.Clock()
         self.gameOver = False
 
-        self.map1 = Map(getColorMap(load(MAIN_DIRECTORY + '\Sprites\pacman_map_1_31x31.png')),
-                        load(MAIN_DIRECTORY + '\Sprites\pacman_map_1_651x651.png'))
+        self.mazeGenerator = MazeGenerator(COLUMNS_COUNT, ROWS_COUNT)
+        self.map1 = Map(getColorMap(load(MAIN_DIRECTORY + '\Sprites\pacman_map_1_31x31.png')))
         # self.map2 = Map(getColorMap(load(MAIN_DIRECTORY + '\Sprites\pacman_map_2_31x31.png')),
         #                 load(MAIN_DIRECTORY + '\Sprites\pacman_map_2_651x651.png'))
-        self.currentMap = self.map1
 
-        self.entitiesSpriteGroup = Group()
-        self.player = Player(self.entitiesSpriteGroup,
-                             self.currentMap.playerStartWorldPosition,
-                             self.currentMap.colorMap)
-        self.ghostsDict = None
-        self.coinsMap = dict()
+        self.currentMap = Map(self.mazeGenerator.colorMap)
+        # self.currentMap = self.map1
 
-        self.layer1 = self.currentMap.background
-        self.layer2 = Surface(SCREEN_SIZE)
-
-        self.ghostsCanMove = True
-        self.ui = dict()
+        # self.entitiesSpriteGroup = Group()
+        # self.player = Player(self.entitiesSpriteGroup,
+        #                      self.currentMap.playerStartWorldPosition,
+        #                      self.currentMap.colorMap)
+        # self.ghostsDict = None
+        # self.coinsMap = dict()
+        #
+        # self.layer1 = self.currentMap.background
+        # self.layer2 = Surface(SCREEN_SIZE)
+        #
+        # self.ghostsCanMove = True
+        # self.ui = dict()
 
         # region OldFields
 
@@ -65,16 +70,16 @@ class GameController(object):
         # endregion
 
     def start(self):
-        image = load('D:\\Projects\\PYTHON\\PacmanByMobik\\Sprites\\CellSprites\\CellWall.png')
-        self._spawnCoins()
-        self.ghostsDict = {MOVABLE_ENTITIES.GHOST_RIKKO: self._createGhost(MOVABLE_ENTITIES.GHOST_RIKKO),
-                           MOVABLE_ENTITIES.GHOST_GREENKY: self._createGhost(MOVABLE_ENTITIES.GHOST_GREENKY),
-                           MOVABLE_ENTITIES.GHOST_PINKY: self._createGhost(MOVABLE_ENTITIES.GHOST_PINKY),
-                           MOVABLE_ENTITIES.GHOST_CLYNE: self._createGhost(MOVABLE_ENTITIES.GHOST_CLYNE)}
-        self.ui = {
-            UI_TEXT_OBJECTS.HP_MARKER: TextObject(32, GameController.HP_MARKER_POSITION, "hp: " + str(self.player.hp)),
-            UI_TEXT_OBJECTS.SCORE_MARKER: TextObject(32, GameController.SCORE_MARKER_POSITION, "score: " + str(self.player.score)),
-            UI_TEXT_OBJECTS.GAME_OVER_MARKER: TextObject(32, GameController.GAME_OVER_MARKER_POSITION, 'Game Over')}
+        # self._spawnCoins()
+        # self.ghostsDict = {MOVABLE_ENTITIES.GHOST_RIKKO: self._createGhost(MOVABLE_ENTITIES.GHOST_RIKKO),
+        #                    MOVABLE_ENTITIES.GHOST_GREENKY: self._createGhost(MOVABLE_ENTITIES.GHOST_GREENKY),
+        #                    MOVABLE_ENTITIES.GHOST_PINKY: self._createGhost(MOVABLE_ENTITIES.GHOST_PINKY),
+        #                    MOVABLE_ENTITIES.GHOST_CLYNE: self._createGhost(MOVABLE_ENTITIES.GHOST_CLYNE)}
+        # self.ui = {
+        #     UI_TEXT_OBJECTS.HP_MARKER: TextObject(32, GameController.HP_MARKER_POSITION, "hp: " + str(self.player.hp)),
+        #     UI_TEXT_OBJECTS.SCORE_MARKER: TextObject(32, GameController.SCORE_MARKER_POSITION, "score: " + str(self.player.score)),
+        #     UI_TEXT_OBJECTS.GAME_OVER_MARKER: TextObject(32, GameController.GAME_OVER_MARKER_POSITION, 'Game Over')}
+        pass
 
         # self.algChangeTimer.start()
 
@@ -84,13 +89,13 @@ class GameController(object):
         else:
             self.clock.tick(FPS)
             self._eventHandler()
-            self.player.tryMovePlayer()
-            self._tryGhostsMove()
-
-            self._tryCheckPlayerGhostsCollisions()
-            self._tryCheckPlayerCoinsCollisions()
+            # self.player.tryMovePlayer()
+            # self._tryGhostsMove()
+            #
+            # self._tryCheckPlayerGhostsCollisions()
+            # self._tryCheckPlayerCoinsCollisions()
             self.render()
-            self._tryStopGame()
+            # self._tryStopGame()
 
         # self.algorithmHandler()
         # self.calculateAlgsTime()
@@ -101,10 +106,8 @@ class GameController(object):
 
     def render(self):
         self._clearScreen()
-        self.entitiesSpriteGroup.draw(self.layer1)
-        self._updateUI()
-        # self.entitiesSpriteGroup.update()
-
+        # self.entitiesSpriteGroup.draw(self.layer1)
+        # self._updateUI()
         self.screen.blit(self.layer1, SCREEN_START_POINT)
 
     def _eventHandler(self):
@@ -113,7 +116,7 @@ class GameController(object):
                 exit()
 
     def _clearScreen(self):
-        self.layer1 = self.map1.background.copy()
+        self.layer1 = self.currentMap.background.copy()
 
     def _createGhost(self, ghostType: int):
         return Ghost(self.entitiesSpriteGroup,
@@ -292,9 +295,15 @@ class GameController(object):
     #             break
     # endregion
 
-
 gameController = GameController()
 gameController.start()
-while True:
+running = True
+while running:
+    for event in pygame.event.get():
+        if event.type == KEYDOWN:
+            if event.key == K_ESCAPE:
+                running = False
+        elif event.type == QUIT:
+            running = False
     gameController.update()
     pygame.display.flip()

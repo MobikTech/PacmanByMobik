@@ -1,3 +1,5 @@
+import random
+
 import pygame
 from pygame.sprite import collide_rect
 from pygame.surface import Surface
@@ -180,7 +182,18 @@ def getPossibleDirections(sprite: SpriteEntity, colorMap: list[list[tuple[int, i
 
 def getOffsettedPoint(point: Tuple[int, int],
                       direction: int,
-                      offsetInPixels: int):
+                      offset: int):
     vector = directionToNormalizedVector(direction)
-    directedOffset = (vector[0] * offsetInPixels, vector[1] * offsetInPixels)
+    directedOffset = (vector[0] * offset, vector[1] * offset)
     return (point[0] + directedOffset[0], point[1] + directedOffset[1])
+
+def getTwoRandomDirections():
+    verticalDirection = random.choice([DIRECTIONS.UP, DIRECTIONS.DOWN])
+    horizontalDirection = random.choice([DIRECTIONS.RIGHT, DIRECTIONS.LEFT])
+    return [verticalDirection, horizontalDirection]
+
+def getOppositesToDirection(direction: int):
+    if direction in [DIRECTIONS.UP, DIRECTIONS.DOWN]:
+        return [DIRECTIONS.RIGHT, DIRECTIONS.LEFT]
+    elif direction in [DIRECTIONS.RIGHT, DIRECTIONS.LEFT]:
+        return [DIRECTIONS.UP, DIRECTIONS.DOWN]
