@@ -15,7 +15,6 @@ class Ghost(CollidableEntity):
                  spriteFile: str,
                  name: str,
                  colorMap: list[list[tuple[int, int, int, int]]],
-                 # refactor
                  pathColor: Tuple[int, int, int, int]):
         self.spriteEntity = SpriteEntity(SPRITE_TYPES.GHOST, spriteGroup, startWorldPosition, spriteFile)
         self.name = name
@@ -66,14 +65,14 @@ def getGhostName(type: int):
     return None
 
 def getGhostColor(type: int):
-    if type == COLORS.RED:
-        return 'Rikko'
-    elif type == COLORS.GREEN:
-        return 'Greenky'
-    elif type == COLORS.PINK:
-        return 'Pinky'
-    elif type == COLORS.YELLOW:
-        return 'Clyne'
+    if type == MOVABLE_ENTITIES.GHOST_RIKKO:
+        return COLORS.RED
+    elif type == MOVABLE_ENTITIES.GHOST_GREENKY:
+        return COLORS.GREEN
+    elif type == MOVABLE_ENTITIES.GHOST_PINKY:
+        return COLORS.PINK
+    elif type == MOVABLE_ENTITIES.GHOST_CLYNE:
+        return COLORS.YELLOW
     return None
 
 def getGhostType(name: str):

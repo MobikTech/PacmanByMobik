@@ -6,7 +6,7 @@ from Scripts.Map.Node import Node
 from Scripts.Common.CoordsConverter import *
 
 
-# Map-making inctructions:
+#region Map-making inctructions:
 # yellow (255, 255, 0, 255) - pacman start point
 # pink (255, 0, 255, 255) - ghosts spawn point
 # black (0, 0, 0, 255) - roads
@@ -14,7 +14,7 @@ from Scripts.Common.CoordsConverter import *
 # blue (0, 0, 255, 255) - walls
 # white (255, 255, 255, 255) - non-active space(for example, for UI)
 # red (255, 0, 0, 255) - door for spirit house
-
+#endregion
 
 class Map(object):
     def __init__(self, colorMap: list[list[tuple[int, int, int, int]]]):
@@ -23,7 +23,6 @@ class Map(object):
         # refactor: add random generation of background image
         self.background = getSurface(colorMap, SCREEN_SIZE)
         self.background.get_rect().center = CENTER_WORLD_SPACE
-
 
         self.playerStartWorldPosition = None
         self.ghostsStartWorldPosition = None
@@ -50,16 +49,16 @@ class Map(object):
     def _defineNodesNeighbours(self):
         for node in self.nodeDictionary.values():
             for direction in node.neighbourNodesAndDistances.keys():
-                if (node.gridPosition + directionToNormalizedVector(direction)) in (CELL_TYPE.MAP_ROAD,
-                                                                                    CELL_TYPE.MAP_CROSSROAD,
-                                                                                    CELL_TYPE.MAP_PACMAN_START_POSITION):
-                    currentGridPosition = (node.gridPosition + directionToNormalizedVector(direction))
+                x, y = nextPoint = getOffsettedPoint(node.gridPosition, direction, 1)
+                if self.colorMap[nextPoint[0]][nextPoint[1]] in (CELL_TYPE.MAP_ROAD,
+                                                                 CELL_TYPE.MAP_CROSSROAD,
+                                                                 CELL_TYPE.MAP_PACMAN_START_POSITION):
                     currentDistance = 1
-                    while node.gridPosition != CELL_TYPE.MAP_CROSSROAD:
-                        currentGridPosition += directionToNormalizedVector(direction)
+                    while self.colorMap[x][y] != CELL_TYPE.MAP_CROSSROAD:
+                        x, y = nextPoint = getOffsettedPoint(nextPoint, direction, 1)
                         currentDistance += 1
                     node.neighbourNodesAndDistances[direction] = (
-                    self.nodeDictionary[currentGridPosition], currentDistance)
+                        self.nodeDictionary[nextPoint], currentDistance)
                     # node.neighbourNodesDistances[direction] = currentDistance
 
 
@@ -103,14 +102,4 @@ def getCellSpritePath(cellSpriteType: int):
         return path + '\CellWall.png'
     if cellSpriteType == SPRITE_TYPES.CELL_DOOR:
         return path + '\CellGhostDoor.png'
-
     raise NotImplementedError
-
-    # # refactor
-    # def resetVisited(self):
-    #     for node in self.nodeDictionary:
-    #         self.nodeDictionary[node].isVisited = False
-    # # refactor
-    # def resetDistances(self):
-    #     for node in self.nodeDictionary:
-    #         self.nodeDictionary[node].distanceToThis = None

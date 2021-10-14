@@ -9,24 +9,3 @@ class Node(object):
                                                 (DIRECTIONS.DOWN, None),
                                                 (DIRECTIONS.RIGHT, None),
                                                 (DIRECTIONS.LEFT, None)])
-
-        # self.topN = None
-        # self.rightN = None
-        # self.bottomN = None
-        # self.leftN = None
-
-        # self.isVisited = False
-
-        # self.toTopDistance = None
-        # self.toRightDistance = None
-        # self.toBottomDistance = None
-        # self.toLeftDistance = None
-
-        # self.distanceToThis = None
-
-
-        # self.neighbourNodesDistances = dict([(DIRECTIONS.UP, None),
-        #                             (DIRECTIONS.DOWN, None),
-        #                             (DIRECTIONS.RIGHT, None),
-        #                             (DIRECTIONS.LEFT, None)])
-

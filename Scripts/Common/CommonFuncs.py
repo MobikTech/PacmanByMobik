@@ -21,72 +21,75 @@ def inCellCenter(point: Tuple[int, int], offsetError):
     return False
 
 
-# def checkCollision(entity1, entity2):
-#     col = pygame.sprite.collide_rect(entity1.sprite, entity2.sprite)
-#     if col == True:
-#         entity1.collideGhost()
-#         entity2.collidePlayer()
-#         return True
-
 def checkToCollision(sprite1: SpriteEntity, sprite2: SpriteEntity):
     return collide_rect(sprite1.sprite, sprite2.sprite)
 
-# def findNearestNodeTo(worldPos, map):
-#     gridPos = worldToGridT(worldPos)
-#     nodes = map.nodeDictionary
-#     # Пускает во все 4 стороны лучи, и возвращает узел, который встретился первым
-#     if gridPos in nodes:
-#         return nodes[gridPos]
-#
-#     rayLength = 0
-#     top = True
-#     right = True
-#     bottom = True
-#     left = True
-#
-#     while True:
-#         if top and map.colorMap[gridPos[0]][gridPos[1] - rayLength] == MAP_WALL:
-#             top = False
-#         elif right and map.colorMap[gridPos[0] + rayLength][gridPos[1]] == MAP_WALL:
-#             right = False
-#         elif bottom and map.colorMap[gridPos[0]][gridPos[1] + rayLength] == MAP_WALL:
-#             bottom = False
-#         elif left and map.colorMap[gridPos[0] - rayLength][gridPos[1]] == MAP_WALL:
-#             left = False
-#
-#         if top and map.colorMap[gridPos[0]][gridPos[1] - rayLength] == MAP_CROSSROAD:
-#             return nodes[(gridPos[0], gridPos[1] - rayLength)]
-#
-#         elif right and map.colorMap[gridPos[0] + rayLength][gridPos[1]] == MAP_CROSSROAD:
-#             return nodes[(gridPos[0] + rayLength, gridPos[1])]
-#
-#         elif bottom and map.colorMap[gridPos[0]][gridPos[1] + rayLength] == MAP_CROSSROAD:
-#             return nodes[(gridPos[0], gridPos[1] + rayLength)]
-#
-#         elif left and map.colorMap[gridPos[0] - rayLength][gridPos[1]] == MAP_CROSSROAD:
-#             return nodes[(gridPos[0] - rayLength, gridPos[1])]
-#         rayLength += 1
+
+def findNearestNodeTo(gridPosition, map):
+    nodes = map.nodeDictionary
+    # if inMapRect(CENTER_GRID_SPACE, gridPosition) == False:
+    #     raise Exception('position over the grid of playable map')
+    x, y = gridPosition
+    if map.colorMap[x][y] == CELL_TYPE.MAP_CROSSROAD:
+        return nodes[gridPosition]
+
+    rayLength = 1
+    directionsList = [DIRECTIONS.UP, DIRECTIONS.DOWN, DIRECTIONS.RIGHT, DIRECTIONS.LEFT]
+    while True:
+        for direction in directionsList:
+            newPoint = getOffsettedPoint(gridPosition, direction, rayLength)
+            if map.colorMap[newPoint[0]][newPoint[1]] == CELL_TYPE.MAP_WALL:
+                directionsList.remove(direction)
+                continue
+            elif map.colorMap[newPoint[0]][newPoint[1]] == CELL_TYPE.MAP_CROSSROAD:
+                return nodes[newPoint]
+        rayLength += 1
 
 
-def DrawPath(path: list, color, screen):
-    prevNode = None
-    pointSize = 4
+def DrawPath(path: list, color, surface):
+    POINT_SIZE = 4
+    currentIndex = 0
     for node in path:
-        if prevNode == None:
-            pygame.draw.circle(screen, color, gridToWorldT(node.gridPosition), pointSize)
-        else:
-            currCoords = node.gridPosition
-            while currCoords != prevNode.gridPosition:
-                if node.topN == prevNode:
-                    currCoords = (currCoords[0], currCoords[1] - 1)
-                elif node.rightN == prevNode:
-                    currCoords = (currCoords[0] + 1, currCoords[1])
-                elif node.bottomN == prevNode:
-                    currCoords = (currCoords[0], currCoords[1] + 1)
-                elif node.leftN == prevNode:
-                    currCoords = (currCoords[0] - 1, currCoords[1])
-                pygame.draw.circle(screen, color, gridToWorldT(currCoords), pointSize)
-        prevNode = node
+        if currentIndex == len(path) - 1:
+            pygame.draw.circle(surface, color, gridToWorldT(node.gridPosition), POINT_SIZE)
+            return
+        nextNode = path[currentIndex + 1]
+        directionToNextNode = getDirectionToNeighbour(node.gridPosition, nextNode.gridPosition)
+        currentPosition = node.gridPosition
+        while currentPosition != nextNode.gridPosition:
+            pygame.draw.circle(surface, color, gridToWorldT(currentPosition), POINT_SIZE)
+            currentPosition = getOffsettedPoint(currentPosition, directionToNextNode, 1)
+        currentIndex += 1
+
+        #
+        # if prevNode == None:
+        #     pygame.draw.circle(surface, color, gridToWorldT(node.gridPosition), POINT_SIZE)
+        # else:
+        #     currCoords = node.gridPosition
+        #     while currCoords != prevNode.gridPosition:
+        #         if node.topN == prevNode:
+        #             currCoords = (currCoords[0], currCoords[1] - 1)
+        #         elif node.rightN == prevNode:
+        #             currCoords = (currCoords[0] + 1, currCoords[1])
+        #         elif node.bottomN == prevNode:
+        #             currCoords = (currCoords[0], currCoords[1] + 1)
+        #         elif node.leftN == prevNode:
+        #             currCoords = (currCoords[0] - 1, currCoords[1])
+        #         pygame.draw.circle(surface, color, gridToWorldT(currCoords), pointSize)
+        # prevNode = node
+
+
+def getDirectionToNeighbour(startPoint: Tuple[int, int], endPoint: Tuple[int, int]):
+    xS, yS = startPoint
+    xE, yE = endPoint
+    if yE < yS and xE == xS:
+        return DIRECTIONS.UP
+    if yE > yS and xE == xS:
+        return DIRECTIONS.DOWN
+    if xE > xS and yE == yS:
+        return DIRECTIONS.RIGHT
+    if xE < xS and yE == yS:
+        return DIRECTIONS.LEFT
 
 
 def moveSpriteEntity(sprite: SpriteEntity, direction: int, length: int):
@@ -180,6 +183,7 @@ def getPossibleDirections(sprite: SpriteEntity, colorMap: list[list[tuple[int, i
             possibleDirections.append(direction)
     return possibleDirections
 
+
 def getOffsettedPoint(point: Tuple[int, int],
                       direction: int,
                       offset: int):
@@ -187,13 +191,34 @@ def getOffsettedPoint(point: Tuple[int, int],
     directedOffset = (vector[0] * offset, vector[1] * offset)
     return (point[0] + directedOffset[0], point[1] + directedOffset[1])
 
+
 def getTwoRandomDirections():
     verticalDirection = random.choice([DIRECTIONS.UP, DIRECTIONS.DOWN])
     horizontalDirection = random.choice([DIRECTIONS.RIGHT, DIRECTIONS.LEFT])
     return [verticalDirection, horizontalDirection]
+
 
 def getOppositesToDirection(direction: int):
     if direction in [DIRECTIONS.UP, DIRECTIONS.DOWN]:
         return [DIRECTIONS.RIGHT, DIRECTIONS.LEFT]
     elif direction in [DIRECTIONS.RIGHT, DIRECTIONS.LEFT]:
         return [DIRECTIONS.UP, DIRECTIONS.DOWN]
+
+
+# def getRandomAnotherDirection(direction: int):
+#     allDirections = [DIRECTIONS.UP, DIRECTIONS.DOWN, DIRECTIONS.RIGHT, DIRECTIONS.LEFT]
+#     allDirections.remove(direction)
+#     return random.choice(allDirections)
+
+def getAnotherDirections(direction: int):
+    allDirections = [DIRECTIONS.UP, DIRECTIONS.DOWN, DIRECTIONS.RIGHT, DIRECTIONS.LEFT]
+    allDirections.remove(direction)
+    return allDirections
+
+
+def inMapRect(gridCenter: Tuple[int, int], position: Tuple[int, int]):
+    x, y = position
+    if x < COLUMNS_COUNT - 1 and x > 0 and \
+            y < gridCenter[1] - 1 and y > 0:
+        return True
+    return False
