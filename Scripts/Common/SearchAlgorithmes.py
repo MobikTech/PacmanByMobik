@@ -87,28 +87,3 @@ def ucs(startNode: Node, targetNode: Node, color, screen, map):
                 queue.append((node.leftN, newPath, cost + node.toLeftDistance))
     map.resetDistances()
 
-
-# def chooseAlgorithm(algorithm, startNode: Node, targetNode: Node, color, screen, map):
-#     if algorithm == ALGORITHMES.BFS:
-#         bfs(startNode, targetNode, color, screen, map)
-#     elif algorithm == ALGORITHMES.DFS:
-#         dfs(startNode, targetNode, color, screen, map)
-#     elif algorithm == ALGORITHMES.UCS:
-#         ucs(startNode, targetNode, color, screen, map)
-#
-#
-# def changeAlgorithm(currAlgorithm):
-#     maxAlg = ALGORITHMES.UCS
-#     currAlgorithm += 1
-#     if currAlgorithm == maxAlg + 1:
-#         currAlgorithm = 0
-#     return currAlgorithm
-#
-#
-# def strOfAlg(currAlgorithm):
-#     if currAlgorithm == ALGORITHMES.BFS:
-#         return ALGORITHMES.BFS_STR
-#     elif currAlgorithm == ALGORITHMES.DFS:
-#         return ALGORITHMES.DFS_STR
-#     elif currAlgorithm == ALGORITHMES.UCS:
-#         return ALGORITHMES.UCS_STR

@@ -59,7 +59,6 @@ class Map(object):
                         currentDistance += 1
                     node.neighbourNodesAndDistances[direction] = (
                         self.nodeDictionary[nextPoint], currentDistance)
-                    # node.neighbourNodesDistances[direction] = currentDistance
 
 
 def getSurface(colorMap: list[list[tuple[int, int, int, int]]], screenSize: Tuple[int, int]):

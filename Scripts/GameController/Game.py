@@ -43,7 +43,7 @@ class GameController(object):
         self.ui = dict()
 
     def start(self):
-        # self._spawnCoins()
+        self._spawnCoins()
         self.ghostsDict = {MOVABLE_ENTITIES.GHOST_RIKKO: self._createGhost(MOVABLE_ENTITIES.GHOST_RIKKO),
                            MOVABLE_ENTITIES.GHOST_GREENKY: self._createGhost(MOVABLE_ENTITIES.GHOST_GREENKY),
                            MOVABLE_ENTITIES.GHOST_PINKY: self._createGhost(MOVABLE_ENTITIES.GHOST_PINKY),
@@ -62,7 +62,6 @@ class GameController(object):
             self.clock.tick(FPS)
             self._eventHandler()
             self.player.tryMovePlayer()
-            self._tryGhostsMove()
             self.stopGhosts()
 
             self._tryCheckPlayerGhostsCollisions()
@@ -73,7 +72,8 @@ class GameController(object):
     def render(self):
         self._clearScreen()
         self.entitiesSpriteGroup.draw(self.layer1)
-        self.algorithmHandler()
+        # self.algorithmHandler()
+        self._tryGhostsMove()
         self._updateUI()
         self.screen.blit(self.layer1, SCREEN_START_POINT)
 
@@ -94,11 +94,21 @@ class GameController(object):
                      getGhostColor(ghostType))
 
     def _tryGhostsMove(self):
-        # if self.ghostsCanMove == False:
-        #     return
-        # for ghost in self.ghostsDict.values():
-        #     ghost.moveGhost()
-        pass
+        if self.ghostsCanMove == False:
+            return
+        for ghost in self.ghostsDict.values():
+            path = bfs(findNearestNodeTo(worldToGridT(ghost.spriteEntity.rect.center), self.currentMap),
+                       findNearestNodeTo(worldToGridT(self.player.spriteEntity.rect.center), self.currentMap),
+                       ghost.pathColor,
+                       self.layer1)
+            ghostPosition = worldToGridT(ghost.spriteEntity.rect.center)
+            nodePosition = path[0].gridPosition
+            if ghostPosition == nodePosition:
+                direction = getDirectionToNeighbour(ghostPosition, path[1].gridPosition)
+            else:
+                direction = getDirectionToNeighbour(worldToGridT(ghost.spriteEntity.rect.center),
+                                                    path[0].gridPosition)
+            ghost.moveGhost(direction)
 
     def _tryCheckPlayerGhostsCollisions(self):
         for ghost in self.ghostsDict.values():
@@ -137,16 +147,22 @@ class GameController(object):
         if pygame.key.get_pressed()[pygame.K_x]:
             self.ghostsCanMove = not self.ghostsCanMove
 
-    def algorithmHandler(self):
-        for ghost in self.ghostsDict.values():
-            path = bfs(findNearestNodeTo(worldToGridT(ghost.spriteEntity.rect.center), self.currentMap),
-                       findNearestNodeTo(worldToGridT(self.player.spriteEntity.rect.center), self.currentMap),
-                       ghost.pathColor,
-                       self.layer1)
-            print(len(path))
-            direction = getDirectionToNeighbour(worldToGridT(ghost.spriteEntity.rect.center),
-                                                path[0].gridPosition)
-            ghost.moveGhost(direction)
+    #region Algorithmes
+    # def algorithmHandler(self):
+    #     for ghost in self.ghostsDict.values():
+    #         path = bfs(findNearestNodeTo(worldToGridT(ghost.spriteEntity.rect.center), self.currentMap),
+    #                    findNearestNodeTo(worldToGridT(self.player.spriteEntity.rect.center), self.currentMap),
+    #                    ghost.pathColor,
+    #                    self.layer1)
+            # ghostPosition = worldToGridT(ghost.spriteEntity.rect.center)
+            # nodePosition = path[0].gridPosition
+            # if ghostPosition == nodePosition:
+            #     direction = getDirectionToNeighbour(ghostPosition, path[1].gridPosition)
+            # else:
+            #     direction = getDirectionToNeighbour(worldToGridT(ghost.spriteEntity.rect.center),
+            #                                     path[0].gridPosition)
+            # ghost.moveGhost(direction)
+    #endregion
 
     def _updateUI(self):
         self.ui[UI_TEXT_OBJECTS.HP_MARKER].textUpdate('hp: ' + str(self.player.hp), self.layer1)
