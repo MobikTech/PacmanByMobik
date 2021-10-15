@@ -44,7 +44,7 @@ class GameController(object):
         self.ui = dict()
 
     def start(self):
-        self._spawnCoins()
+        # self._spawnCoins()
         self.ghostsDict = {MOVABLE_ENTITIES.GHOST_RIKKO: self._createGhost(MOVABLE_ENTITIES.GHOST_RIKKO),
                            MOVABLE_ENTITIES.GHOST_GREENKY: self._createGhost(MOVABLE_ENTITIES.GHOST_GREENKY),
                            MOVABLE_ENTITIES.GHOST_PINKY: self._createGhost(MOVABLE_ENTITIES.GHOST_PINKY),

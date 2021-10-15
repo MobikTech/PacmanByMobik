@@ -93,12 +93,12 @@ def getCellSpriteType(color: Tuple[int, int, int, int]):
 
 def getCellSpritePath(cellSpriteType: int):
     path = MAIN_DIRECTORY + '\Sprites\CellSprites'
-    if cellSpriteType == SPRITE_TYPES.CELL_ROAD:
-        return path + '\CellRoad.png'
-    if cellSpriteType == SPRITE_TYPES.CELL_CROSSROAD:
-        return path + '\CellCrossroad.png'
-    # if cellSpriteType in [SPRITE_TYPES.CELL_ROAD, SPRITE_TYPES.CELL_CROSSROAD]:
+    # if cellSpriteType == SPRITE_TYPES.CELL_ROAD:
     #     return path + '\CellRoad.png'
+    # if cellSpriteType == SPRITE_TYPES.CELL_CROSSROAD:
+    #     return path + '\CellCrossroad.png'
+    if cellSpriteType in [SPRITE_TYPES.CELL_ROAD, SPRITE_TYPES.CELL_CROSSROAD]:
+        return path + '\CellRoad.png'
     if cellSpriteType == SPRITE_TYPES.CELL_WALL:
         return path + '\CellWall.png'
     if cellSpriteType == SPRITE_TYPES.CELL_DOOR:
