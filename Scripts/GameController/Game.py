@@ -2,6 +2,7 @@ from pygame.constants import KEYDOWN, K_ESCAPE, QUIT
 from pygame.image import load
 
 from Scripts.Common.MazeGenerator import MazeGenerator
+from Scripts.Common.MazeGenerator2 import MazeGenerator2
 from Scripts.Common.SearchAlgorithmes import *
 from Scripts.Entities.Entities.Coin import *
 from Scripts.Entities.Entities.Ghost import *
@@ -11,9 +12,9 @@ from Scripts.Other.TextObject import TextObject
 
 
 class GameController(object):
-    HP_MARKER_POSITION = (CENTER_WORLD_SPACE[0] - CELL_SIZE * 11, CENTER_WORLD_SPACE[1] + CELL_SIZE * 3)
-    SCORE_MARKER_POSITION = (CENTER_WORLD_SPACE[0], CENTER_WORLD_SPACE[1] + CELL_SIZE * 3)
-    GAME_OVER_MARKER_POSITION = (CENTER_WORLD_SPACE[0], CENTER_WORLD_SPACE[1] + CELL_SIZE * 6)
+    HP_MARKER_POSITION = (SCREEN_CENTER[0] - CELL_SIZE * 11, SCREEN_CENTER[1] + CELL_SIZE * 3)
+    SCORE_MARKER_POSITION = (SCREEN_CENTER[0], SCREEN_CENTER[1] + CELL_SIZE * 3)
+    GAME_OVER_MARKER_POSITION = (SCREEN_CENTER[0], SCREEN_CENTER[1] + CELL_SIZE * 6)
 
     GAME_OVER_HP_VALUE = 0
     GAME_OVER_COIN_COUNT = -1
@@ -24,13 +25,13 @@ class GameController(object):
         self.clock = pygame.time.Clock()
         self.gameOver = False
 
-        self.mazeGenerator = MazeGenerator(COLUMNS_COUNT, ROWS_COUNT)
+        self.mazeGenerator = MazeGenerator2()
         self.map1 = Map(getColorMap(load(MAIN_DIRECTORY + '\Sprites\pacman_map_1_31x31.png')))
         # self.map2 = Map(getColorMap(load(MAIN_DIRECTORY + '\Sprites\pacman_map_2_31x31.png')),
         #                 load(MAIN_DIRECTORY + '\Sprites\pacman_map_2_651x651.png'))
 
-        self.currentMap = Map(self.mazeGenerator.colorMap)
-        # self.currentMap = self.map1
+        # self.currentMap = Map(self.mazeGenerator.colorMapList)
+        self.currentMap = self.map1
 
         self.entitiesSpriteGroup = Group()
         self.player = Player(self.entitiesSpriteGroup,
@@ -43,7 +44,7 @@ class GameController(object):
         self.ui = dict()
 
     def start(self):
-        # self._spawnCoins()
+        self._spawnCoins()
         self.ghostsDict = {MOVABLE_ENTITIES.GHOST_RIKKO: self._createGhost(MOVABLE_ENTITIES.GHOST_RIKKO),
                            MOVABLE_ENTITIES.GHOST_GREENKY: self._createGhost(MOVABLE_ENTITIES.GHOST_GREENKY),
                            MOVABLE_ENTITIES.GHOST_PINKY: self._createGhost(MOVABLE_ENTITIES.GHOST_PINKY),
@@ -53,7 +54,7 @@ class GameController(object):
             UI_TEXT_OBJECTS.SCORE_MARKER: TextObject(32, GameController.SCORE_MARKER_POSITION,
                                                      "score: " + str(self.player.score)),
             UI_TEXT_OBJECTS.GAME_OVER_MARKER: TextObject(32, GameController.GAME_OVER_MARKER_POSITION, 'Game Over')}
-
+        pass
 
     def update(self):
         if self.gameOver == True:
@@ -67,8 +68,8 @@ class GameController(object):
 
             self._tryCheckPlayerGhostsCollisions()
             self._tryCheckPlayerCoinsCollisions()
-            self.render()
             self._tryStopGame()
+            self.render()
 
     def render(self):
         self._clearScreen()
@@ -97,7 +98,16 @@ class GameController(object):
         if self.ghostsCanMove == False:
             return
         for ghost in self.ghostsDict.values():
-            ghost.moveGhost()
+            # if not inMapRect(worldToGridT(ghost.spriteEntity.rect.center)):
+            #     ghost.moveGhost(None)
+            #     continue
+            path = bfs(findNearestNodeTo(worldToGridT(ghost.spriteEntity.rect.center), self.currentMap),
+                       findNearestNodeTo(worldToGridT(self.player.spriteEntity.rect.center), self.currentMap),
+                       ghost.pathColor,
+                       self.layer1)
+            # direction = getDirectionToNeighbour(worldToGridT(ghost.spriteEntity.rect.center),
+            #                                     path[0].gridPosition)
+            ghost.moveGhost(None)
 
     def _tryCheckPlayerGhostsCollisions(self):
         for ghost in self.ghostsDict.values():
@@ -137,7 +147,10 @@ class GameController(object):
             self.ghostsCanMove = not self.ghostsCanMove
 
     def algorithmHandler(self):
+        # print(findNearestNodeTo(worldToGridT(self.player.spriteEntity.rect.center), self.currentMap).gridPosition)
         for ghost in self.ghostsDict.values():
+            # print(findNearestNodeTo(worldToGridT(ghost.spriteEntity.rect.center), self.currentMap).gridPosition)
+
             path = bfs(findNearestNodeTo(worldToGridT(ghost.spriteEntity.rect.center), self.currentMap),
                        findNearestNodeTo(worldToGridT(self.player.spriteEntity.rect.center), self.currentMap),
                        ghost.pathColor,

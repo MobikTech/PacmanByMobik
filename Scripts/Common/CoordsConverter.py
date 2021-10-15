@@ -20,3 +20,11 @@ def gridToWorld(gridXPos: int, gridYPos: int):
 
 def gridToWorldT(gridPos: Tuple[int, int]):
     return gridToWorld(gridPos[0], gridPos[1])
+
+def colorMapToList(colorMap: dict):
+    colorMapList = [[CELL_TYPE.MAP_WALL for x in range(GRID_COLUMNS_COUNT)]
+                for y in range(GRID_ROWS_COUNT)]
+    for x in range(GRID_COLUMNS_COUNT):
+        for y in range(GRID_ROWS_COUNT):
+            colorMapList[x][y] = colorMap[(x, y)]
+    return colorMapList

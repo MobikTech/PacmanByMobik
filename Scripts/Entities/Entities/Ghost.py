@@ -26,19 +26,27 @@ class Ghost(CollidableEntity):
 
         self.pathColor = pathColor
 
-    def moveGhost(self):
+    def moveGhost(self, newDirection):
         newDirection = self._tryRandomChangeDirection(self.colorMap, self.spriteEntity)
         if newDirection != None:
             self.currentDirection = newDirection
+        if inCellCenter(self.spriteEntity.sprite.rect.center, 1):
+            ghostGridPosition = worldToGridT(self.spriteEntity.sprite.rect.center)
+            if getCellType(self.colorMap, ghostGridPosition) == CELL_TYPE.MAP_CROSSROAD:
+                self.spriteEntity.sprite.rect.center = gridToWorldT(ghostGridPosition)
+                if newDirection != None:
+                    self.currentDirection = newDirection
         moveSpriteEntity(self.spriteEntity, self.currentDirection, self.speed)
 
-    def _tryRandomChangeDirection(self, colorMap: list[list[tuple[int, int, int, int]]], sprite: SpriteEntity):
+    def _tryRandomChangeDirection(self,
+                                  colorMap: list[list[tuple[int, int, int, int]]],
+                                  sprite: SpriteEntity):
         possibleDirections = getPossibleDirections(sprite, colorMap)
 
         if inCellCenter(sprite.rect.center, 1):
-            playerGridPosition = worldToGridT(sprite.rect.center)
-            if getCellType(colorMap, playerGridPosition) == CELL_TYPE.MAP_CROSSROAD:
-                sprite.rect.center = gridToWorldT(playerGridPosition)
+            ghostGridPosition = worldToGridT(sprite.rect.center)
+            if getCellType(colorMap, ghostGridPosition) == CELL_TYPE.MAP_CROSSROAD:
+                sprite.rect.center = gridToWorldT(ghostGridPosition)
                 return random.choice(possibleDirections)
         return None
 

@@ -47,6 +47,7 @@ def findNearestNodeTo(gridPosition, map):
 
 
 def DrawPath(path: list, color, surface):
+    print('draw')
     POINT_SIZE = 4
     currentIndex = 0
     for node in path:
@@ -60,23 +61,6 @@ def DrawPath(path: list, color, surface):
             pygame.draw.circle(surface, color, gridToWorldT(currentPosition), POINT_SIZE)
             currentPosition = getOffsettedPoint(currentPosition, directionToNextNode, 1)
         currentIndex += 1
-
-        #
-        # if prevNode == None:
-        #     pygame.draw.circle(surface, color, gridToWorldT(node.gridPosition), POINT_SIZE)
-        # else:
-        #     currCoords = node.gridPosition
-        #     while currCoords != prevNode.gridPosition:
-        #         if node.topN == prevNode:
-        #             currCoords = (currCoords[0], currCoords[1] - 1)
-        #         elif node.rightN == prevNode:
-        #             currCoords = (currCoords[0] + 1, currCoords[1])
-        #         elif node.bottomN == prevNode:
-        #             currCoords = (currCoords[0], currCoords[1] + 1)
-        #         elif node.leftN == prevNode:
-        #             currCoords = (currCoords[0] - 1, currCoords[1])
-        #         pygame.draw.circle(surface, color, gridToWorldT(currCoords), pointSize)
-        # prevNode = node
 
 
 def getDirectionToNeighbour(startPoint: Tuple[int, int], endPoint: Tuple[int, int]):
@@ -187,9 +171,11 @@ def getPossibleDirections(sprite: SpriteEntity, colorMap: list[list[tuple[int, i
 def getOffsettedPoint(point: Tuple[int, int],
                       direction: int,
                       offset: int):
-    vector = directionToNormalizedVector(direction)
-    directedOffset = (vector[0] * offset, vector[1] * offset)
-    return (point[0] + directedOffset[0], point[1] + directedOffset[1])
+    normalVector = directionToNormalizedVector(direction)
+    vector = (normalVector[0] * offset,
+              normalVector[1] * offset)
+    return (point[0] + vector[0],
+            point[1] + vector[1])
 
 
 def getTwoRandomDirections():
@@ -216,9 +202,21 @@ def getAnotherDirections(direction: int):
     return allDirections
 
 
-def inMapRect(gridCenter: Tuple[int, int], position: Tuple[int, int]):
+def inMapRect(position: Tuple[int, int]):
     x, y = position
-    if x < COLUMNS_COUNT - 1 and x > 0 and \
-            y < gridCenter[1] - 1 and y > 0:
+    if x < GRID_COLUMNS_COUNT - 1 and x > 0 and \
+            y < GRID_CENTER[1] and y > 0:
         return True
     return False
+
+
+def getRandomBool(probability: float):
+    percent = int(probability * 100)
+    return random.randint(1, int(100 / percent)) == 1
+
+def getNoneDirectionDictionary():
+    return {DIRECTIONS.UP: None,
+            DIRECTIONS.DOWN: None,
+            DIRECTIONS.RIGHT: None,
+            DIRECTIONS.LEFT: None}
+

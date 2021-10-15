@@ -3,6 +3,8 @@ from Scripts.Map.Node import Node
 
 
 def bfs(startNode: Node, targetNode: Node, color, surface):
+    print(startNode.gridPosition)
+    print(targetNode.gridPosition)
     queue = [(startNode, [startNode])]
     visited = list()
     while queue:
