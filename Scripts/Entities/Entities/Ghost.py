@@ -26,11 +26,18 @@ class Ghost(CollidableEntity):
 
         self.pathColor = pathColor
 
-    def moveGhost(self):
-        newDirection = self._tryRandomChangeDirection(self.colorMap, self.spriteEntity)
-        if newDirection != None:
-            self.currentDirection = newDirection
+    def moveGhost(self, newDirection):
+        if inCellCenter(self.spriteEntity.sprite.rect.center, 1):
+            ghostGridPosition = worldToGridT(self.spriteEntity.sprite.rect.center)
+            if getCellType(self.colorMap, ghostGridPosition) == CELL_TYPE.MAP_CROSSROAD:
+                self.spriteEntity.sprite.rect.center = gridToWorldT(ghostGridPosition)
+                if newDirection != None:
+                    self.currentDirection = newDirection
         moveSpriteEntity(self.spriteEntity, self.currentDirection, self.speed)
+        # newDirection = self._tryRandomChangeDirection(self.colorMap, self.spriteEntity)
+        # if newDirection != None:
+        #     self.currentDirection = newDirection
+        # moveSpriteEntity(self.spriteEntity, self.currentDirection, self.speed)
 
     def _tryRandomChangeDirection(self, colorMap: list[list[tuple[int, int, int, int]]], sprite: SpriteEntity):
         possibleDirections = getPossibleDirections(sprite, colorMap)

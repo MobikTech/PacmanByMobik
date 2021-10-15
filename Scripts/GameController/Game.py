@@ -94,10 +94,11 @@ class GameController(object):
                      getGhostColor(ghostType))
 
     def _tryGhostsMove(self):
-        if self.ghostsCanMove == False:
-            return
-        for ghost in self.ghostsDict.values():
-            ghost.moveGhost()
+        # if self.ghostsCanMove == False:
+        #     return
+        # for ghost in self.ghostsDict.values():
+        #     ghost.moveGhost()
+        pass
 
     def _tryCheckPlayerGhostsCollisions(self):
         for ghost in self.ghostsDict.values():
@@ -142,6 +143,10 @@ class GameController(object):
                        findNearestNodeTo(worldToGridT(self.player.spriteEntity.rect.center), self.currentMap),
                        ghost.pathColor,
                        self.layer1)
+            print(len(path))
+            direction = getDirectionToNeighbour(worldToGridT(ghost.spriteEntity.rect.center),
+                                                path[0].gridPosition)
+            ghost.moveGhost(direction)
 
     def _updateUI(self):
         self.ui[UI_TEXT_OBJECTS.HP_MARKER].textUpdate('hp: ' + str(self.player.hp), self.layer1)
