@@ -24,13 +24,13 @@ class GameController(object):
         self.clock = pygame.time.Clock()
         self.gameOver = False
 
-        self.mazeGenerator = MazeGenerator(COLUMNS_COUNT, ROWS_COUNT)
+        # self.mazeGenerator = MazeGenerator(COLUMNS_COUNT, ROWS_COUNT)
         self.map1 = Map(getColorMap(load(MAIN_DIRECTORY + '\Sprites\pacman_map_1_31x31.png')))
         # self.map2 = Map(getColorMap(load(MAIN_DIRECTORY + '\Sprites\pacman_map_2_31x31.png')),
         #                 load(MAIN_DIRECTORY + '\Sprites\pacman_map_2_651x651.png'))
 
-        self.currentMap = Map(self.mazeGenerator.colorMap)
-        # self.currentMap = self.map1
+        # self.currentMap = Map(self.mazeGenerator.colorMap)
+        self.currentMap = self.map1
 
         self.entitiesSpriteGroup = Group()
         self.player = Player(self.entitiesSpriteGroup,
