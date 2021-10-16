@@ -25,6 +25,7 @@ class Player(CollidableEntity):
 
         self.score = 0
         self.hp = Player.START_HP
+        self.lastVisitedCrossroad = None
 
     def tryMovePlayer(self, newDirection):
         # newDirection = self._tryChangeDirection(self.colorMap, self.spriteEntity, self.currentDirection)
@@ -74,3 +75,4 @@ class Player(CollidableEntity):
     def respawn(self):
         self.spriteEntity.sprite.rect.center = self.spriteEntity.startPosition
         self.currentDirection = self.startDirection
+        self.lastVisitedCrossroad = None

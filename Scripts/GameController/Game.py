@@ -42,10 +42,13 @@ class GameController(object):
         self.ghostsCanMove = True
         self.ui = dict()
 
-        # self.playerTargetPosition = random.choice(list(self.currentMap.nodeDictionary.values()))
-        self.playerTargetPosition = random.choice(list(self.currentMap.nodeDictionary.values()))
+        self.playerTargetPosition = getRandomCoinPosition(self.coinsMap)
         self.currentPath = None
-        self.currentPathPosition = None
+
+        self.currentDrawingPath = None
+        self.startPlayerPosition = None
+        self.currentDirectionIndex = 0
+        self.lastCrossroad = None
 
     def start(self):
         self._spawnCoins()
@@ -116,37 +119,36 @@ class GameController(object):
 
     def _tryMovePlayer(self):
         currentPlayerPosition = worldToGridT(self.player.spriteEntity.rect.center)
-        randomCoinPosition = getRandomCoinPosition(self.coinsMap)
-        directionsPath = getPathToTarget(currentPlayerPosition, randomCoinPosition, self.currentMap)
-
+        targetPosition = self.playerTargetPosition
+        directionsPath = self.currentPath
+        startPlayerPosition = self.startPlayerPosition
+        DirectionsPathDraw = self.currentPath
+        if currentPlayerPosition == targetPosition or directionsPath == None:
+            targetPosition = self.playerTargetPosition = getRandomCoinPosition(self.coinsMap)
+            DirectionsPathDraw = directionsPath = self.currentDrawingPath = self.currentPath = getPathToTarget(currentPlayerPosition, targetPosition, self.currentMap)
+            self.currentDirectionIndex = 0
+            self.player.lastVisitedCrossroad = None
+            startPlayerPosition = self.startPlayerPosition = currentPlayerPosition
+        pygame.draw.circle(self.layer1, COLORS.BLUE, gridToWorldT(currentPlayerPosition), 6)
+        pygame.draw.circle(self.layer1, COLORS.BLUE, gridToWorldT(targetPosition), 6)
 
         DrawDirectionsPath(directionsPath,
-                           currentPlayerPosition,
-                           randomCoinPosition,
+                           startPlayerPosition,
+                           targetPosition,
                            self.currentMap.colorMap,
-                           COLORS.WHITE,
+                           COLORS.BLUE,
                            self.layer1)
 
-        self.player.tryMovePlayer(directionsPath[0])
+        colorMap = getColorMapDict(self.currentMap.colorMap)
+        if inCellCenter(self.player.spriteEntity.rect.center, 2) and \
+                colorMap[currentPlayerPosition] == CELL_TYPE.MAP_CROSSROAD and \
+                self.player.lastVisitedCrossroad != currentPlayerPosition:
+            self.player.spriteEntity.rect.center = gridToWorldT(currentPlayerPosition)
+            self.player.lastVisitedCrossroad = currentPlayerPosition
+            self.currentDirectionIndex += 1
+            self.currentDrawingPath.pop(0)
+        self.player.tryMovePlayer(directionsPath[self.currentDirectionIndex])
 
-
-
-        # if worldToGridT(self.player.spriteEntity.rect.center) == self.playerTargetPosition.gridPosition or \
-        #         self.currentPath == None:
-        #     self.playerTargetPosition = findNearestNodeTo(random.choice(getCoinsPositions(self.coinsMap)), self.currentMap)
-        #
-        #     self.currentPath = getPathToTarget(currentPlayerPosition,)
-        #     self.currentPathPosition = 0
-        # DrawPath(self.currentPath, COLORS.WHITE, self.layer1)
-        #
-        # playerPosition = worldToGridT(self.player.spriteEntity.rect.center)
-        # nodePosition = self.currentPath[self.currentPathPosition].gridPosition
-        # if playerPosition == nodePosition:
-        #     if
-        #     self.currentPathPosition += 1
-        #
-        # direction = getDirectionToNeighbour(playerPosition, self.currentPath[self.currentPathPosition].gridPosition)
-        # self.player.tryMovePlayer(direction)
 
     def _tryCheckPlayerGhostsCollisions(self):
         for ghost in self.ghostsDict.values():
@@ -184,7 +186,6 @@ class GameController(object):
     def stopGhosts(self):
         if pygame.key.get_pressed()[pygame.K_x]:
             self.ghostsCanMove = not self.ghostsCanMove
-
 
     def _updateUI(self):
         self.ui[UI_TEXT_OBJECTS.HP_MARKER].textUpdate('hp: ' + str(self.player.hp), self.layer1)

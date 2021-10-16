@@ -62,19 +62,21 @@ def DrawPath(path: list, color, surface):
             currentPosition = getOffsettedPoint(currentPosition, directionToNextNode, 1)
         currentIndex += 1
 
+
 def DrawDirectionsPath(path: list[int], startPoint, target, colorMap, color, surface):
     POINT_SIZE = 6
+    colorMapDict = getColorMapDict(colorMap)
     currentPosition = startPoint
     currentDirectionIndex = 0
     currentDirection = path[currentDirectionIndex]
 
     while currentPosition != target:
         pygame.draw.circle(surface, color, gridToWorldT(currentPosition), POINT_SIZE)
-        if colorMap[currentPosition] == CELL_TYPE.MAP_CROSSROAD:
+        if colorMapDict[currentPosition] == CELL_TYPE.MAP_CROSSROAD and \
+                currentPosition != target:
             currentDirectionIndex += 1
             currentDirection = path[currentDirectionIndex]
         currentPosition = getOffsettedPoint(currentPosition, currentDirection, 1)
-
 
 
 def getDirectionToNeighbour(startPoint: Tuple[int, int], endPoint: Tuple[int, int]):
@@ -267,8 +269,17 @@ def isBetweenNeighborNodes(firstNode, secondNode, point: Tuple[int, int]):
         return False
     raise NotImplementedError
 
+
 def getRandomCoinPosition(coins: dict):
     coinList = getCoinsPositions(coins)
     if len(coinList) < 1:
         return None
     return random.choice(coinList)
+
+
+def getColorMapDict(colorMap: list[list[tuple[int, int, int, int]]]):
+    colorMapDict = dict()
+    for x in range(len(colorMap[0])):
+        for y in range(len(colorMap)):
+            colorMapDict[(x, y)] = colorMap[x][y]
+    return colorMapDict
