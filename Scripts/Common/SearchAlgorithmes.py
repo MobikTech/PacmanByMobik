@@ -22,71 +22,7 @@ def bfs(startNode: Node, targetNode: Node, color, surface):
                 newPath.append(nodeAndDistance[0])
                 queue.append((nodeAndDistance[0], newPath))
 
-def getDistanceToTarget(point: Tuple[int, int], target: Tuple[int, int]):
-    # c = sqrt(a^2 + b^2)
-    a = point[0] - target[0]
-    b = point[1] - target[1]
-    c = sqrt(pow(a, 2) + pow(b, 2))
-    return c
 
-def heuristicFunction(currentNode: Node, direction: int, target: Node):
-    if currentNode.neighbourNodesAndDistances[direction] == None:
-        return None
-    totalDistance = 0
-    totalDistance += currentNode.neighbourNodesAndDistances[direction][1]
-    totalDistance += getDistanceToTarget(currentNode.neighbourNodesAndDistances[direction][0].gridPosition, target.gridPosition)
-    return totalDistance
-
-
-def aStar(startNode: Node, targetNode: Node, color, surface):
-    path = list()
-    path.append(startNode)
-    while path[-1] != targetNode:
-        currentNode = path[-1]
-        bestDirection = None
-
-        for direction in currentNode.neighbourNodesAndDistances.keys():
-            neighbourInfo = currentNode.neighbourNodesAndDistances[direction]
-            if neighbourInfo == None:
-                continue
-            if path.__contains__(neighbourInfo[0]):
-                continue
-            if neighbourInfo[0] == targetNode:
-                path.append(targetNode)
-                DrawPath(path, color, surface)
-                return path
-            if bestDirection == None:
-                bestDirection = direction
-                continue
-            if heuristicFunction(path[-1], direction, targetNode) < \
-                heuristicFunction(path[-1], bestDirection, targetNode):
-                bestDirection = direction
-        path.append(currentNode.neighbourNodesAndDistances[bestDirection][0])
-
-
-
-
-        
-
-
-
-
-    queue = [(startNode, [startNode])]
-    visited = list()
-    while queue:
-        node, path = queue.pop(0)
-        visited.append(node)
-        if node == targetNode:
-            DrawPath(path, color, surface)
-            return path
-
-        for nodeAndDistance in node.neighbourNodesAndDistances.values():
-            if nodeAndDistance == None:
-                continue
-            if visited.__contains__(nodeAndDistance[0]) == False:
-                newPath = path.copy()
-                newPath.append(nodeAndDistance[0])
-                queue.append((nodeAndDistance[0], newPath))
 
 # refactor
 def dfs(startNode: Node, targetNode: Node, color, screen, map):
@@ -154,3 +90,71 @@ def ucs(startNode: Node, targetNode: Node, color, screen, map):
                 queue.append((node.leftN, newPath, cost + node.toLeftDistance))
     map.resetDistances()
 
+
+def getDistanceToTarget(point: Tuple[int, int], target: Tuple[int, int]):
+    # c = sqrt(a^2 + b^2)
+    a = point[0] - target[0]
+    b = point[1] - target[1]
+    c = sqrt(pow(a, 2) + pow(b, 2))
+    return c
+
+
+def heuristicFunction(currentNode: Node, direction: int, target: Node):
+    if currentNode.neighbourNodesAndDistances[direction] == None:
+        return None
+    totalDistance = 0
+    totalDistance += currentNode.neighbourNodesAndDistances[direction][1]
+    totalDistance += getDistanceToTarget(currentNode.neighbourNodesAndDistances[direction][0].gridPosition, target.gridPosition)
+    return totalDistance
+
+
+
+def getPathToTarget(startPoint: Tuple[int, int], target: Tuple[int, int], map):
+    directionsPath = list()
+
+    startNearestNeighbour = findNearestNodeTo(startPoint, map)
+    targetNearestNeighbour = findNearestNodeTo(target, map)
+    nodesPath = aStar(startNearestNeighbour, targetNearestNeighbour)
+
+    firstNode = nodesPath[0]
+    secondNode = nodesPath[1]
+    lastNode = nodesPath[-1]
+    preLastNode = nodesPath[-2]
+
+    if not isBetweenNeighborNodes(firstNode, secondNode, startPoint):
+        directionsPath.append(getDirectionToNeighbour(startPoint,
+                                                      nodesPath[0].gridPosition))
+    for index in range(len(nodesPath) - 1):
+        direction = getDirectionToNeighbour(nodesPath[index].gridPosition,
+                                            nodesPath[index + 1].gridPosition)
+        directionsPath.append(direction)
+
+    if not isBetweenNeighborNodes(lastNode, preLastNode, target):
+        directionsPath.append(getDirectionToNeighbour(nodesPath[-1].gridPosition,
+                                                      target))
+    return directionsPath
+
+
+def aStar(startNode: Node, targetNode: Node):
+    path = list()
+    path.append(startNode)
+    while path[-1] != targetNode:
+        currentNode = path[-1]
+        bestDirection = None
+
+        for direction in currentNode.neighbourNodesAndDistances.keys():
+            neighbourInfo = currentNode.neighbourNodesAndDistances[direction]
+            if neighbourInfo == None:
+                continue
+            if path.__contains__(neighbourInfo[0]):
+                continue
+            if neighbourInfo[0] == targetNode:
+                path.append(targetNode)
+                return path
+            if bestDirection == None:
+                bestDirection = direction
+                continue
+            if heuristicFunction(path[-1], direction, targetNode) < \
+                heuristicFunction(path[-1], bestDirection, targetNode):
+                bestDirection = direction
+        path.append(currentNode.neighbourNodesAndDistances[bestDirection][0])

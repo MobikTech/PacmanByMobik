@@ -42,12 +42,13 @@ class GameController(object):
         self.ghostsCanMove = True
         self.ui = dict()
 
-        self.playerTarget = random.choice(list(self.currentMap.nodeDictionary.values()))
+        # self.playerTargetPosition = random.choice(list(self.currentMap.nodeDictionary.values()))
+        self.playerTargetPosition = random.choice(list(self.currentMap.nodeDictionary.values()))
         self.currentPath = None
         self.currentPathPosition = None
 
     def start(self):
-        # self._spawnCoins()
+        self._spawnCoins()
         self.ghostsDict = {MOVABLE_ENTITIES.GHOST_RIKKO: self._createGhost(MOVABLE_ENTITIES.GHOST_RIKKO),
                            MOVABLE_ENTITIES.GHOST_GREENKY: self._createGhost(MOVABLE_ENTITIES.GHOST_GREENKY),
                            MOVABLE_ENTITIES.GHOST_PINKY: self._createGhost(MOVABLE_ENTITIES.GHOST_PINKY),
@@ -114,26 +115,38 @@ class GameController(object):
             ghost.moveGhost(direction)
 
     def _tryMovePlayer(self):
-        if worldToGridT(self.player.spriteEntity.rect.center) == self.playerTarget.gridPosition or \
-                self.currentPath == None:
-            self.playerTarget = findNearestNodeTo(random.choice(getCoinsPositions(self.coinsMap)), self.currentMap)
+        currentPlayerPosition = worldToGridT(self.player.spriteEntity.rect.center)
+        randomCoinPosition = getRandomCoinPosition(self.coinsMap)
+        directionsPath = getPathToTarget(currentPlayerPosition, randomCoinPosition, self.currentMap)
 
-            self.currentPath = aStar(
-                findNearestNodeTo(worldToGridT(self.player.spriteEntity.rect.center), self.currentMap),
-                self.playerTarget,
-                COLORS.WHITE,
-                self.layer1)
-            self.currentPathPosition = 0
-        DrawPath(self.currentPath, COLORS.WHITE, self.layer1)
 
-        playerPosition = worldToGridT(self.player.spriteEntity.rect.center)
-        nodePosition = self.currentPath[self.currentPathPosition].gridPosition
-        if playerPosition == nodePosition:
-            if
-            self.currentPathPosition += 1
+        DrawDirectionsPath(directionsPath,
+                           currentPlayerPosition,
+                           randomCoinPosition,
+                           self.currentMap.colorMap,
+                           COLORS.WHITE,
+                           self.layer1)
 
-        direction = getDirectionToNeighbour(playerPosition, self.currentPath[self.currentPathPosition].gridPosition)
-        self.player.tryMovePlayer(direction)
+        self.player.tryMovePlayer(directionsPath[0])
+
+
+
+        # if worldToGridT(self.player.spriteEntity.rect.center) == self.playerTargetPosition.gridPosition or \
+        #         self.currentPath == None:
+        #     self.playerTargetPosition = findNearestNodeTo(random.choice(getCoinsPositions(self.coinsMap)), self.currentMap)
+        #
+        #     self.currentPath = getPathToTarget(currentPlayerPosition,)
+        #     self.currentPathPosition = 0
+        # DrawPath(self.currentPath, COLORS.WHITE, self.layer1)
+        #
+        # playerPosition = worldToGridT(self.player.spriteEntity.rect.center)
+        # nodePosition = self.currentPath[self.currentPathPosition].gridPosition
+        # if playerPosition == nodePosition:
+        #     if
+        #     self.currentPathPosition += 1
+        #
+        # direction = getDirectionToNeighbour(playerPosition, self.currentPath[self.currentPathPosition].gridPosition)
+        # self.player.tryMovePlayer(direction)
 
     def _tryCheckPlayerGhostsCollisions(self):
         for ghost in self.ghostsDict.values():
@@ -172,30 +185,10 @@ class GameController(object):
         if pygame.key.get_pressed()[pygame.K_x]:
             self.ghostsCanMove = not self.ghostsCanMove
 
-    # region Algorithmes
-    # def algorithmHandler(self):
-    #     for ghost in self.ghostsDict.values():
-    #         path = bfs(findNearestNodeTo(worldToGridT(ghost.spriteEntity.rect.center), self.currentMap),
-    #                    findNearestNodeTo(worldToGridT(self.player.spriteEntity.rect.center), self.currentMap),
-    #                    ghost.pathColor,
-    #                    self.layer1)
-    # ghostPosition = worldToGridT(ghost.spriteEntity.rect.center)
-    # nodePosition = path[0].gridPosition
-    # if ghostPosition == nodePosition:
-    #     direction = getDirectionToNeighbour(ghostPosition, path[1].gridPosition)
-    # else:
-    #     direction = getDirectionToNeighbour(worldToGridT(ghost.spriteEntity.rect.center),
-    #                                     path[0].gridPosition)
-    # ghost.moveGhost(direction)
-    # endregion
 
     def _updateUI(self):
         self.ui[UI_TEXT_OBJECTS.HP_MARKER].textUpdate('hp: ' + str(self.player.hp), self.layer1)
         self.ui[UI_TEXT_OBJECTS.SCORE_MARKER].textUpdate('score: ' + str(self.player.score), self.layer1)
-        # self.currentAlgorithmText.textUpdate("Algorithm: " + strOfAlg(self.currentAlgorithm), self.screen)
-        # self.timeBFSText.textUpdate("BFS Time: " + str(self.timeBFS), self.screen)
-        # self.timeDFSText.textUpdate("DFS Time: " + str(self.timeDFS), self.screen)
-        # self.timeUCSText.textUpdate("UCS Time: " + str(self.timeUCS), self.screen)
 
     def _endGame(self):
         self._clearScreen()
