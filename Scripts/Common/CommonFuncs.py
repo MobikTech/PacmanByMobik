@@ -5,9 +5,13 @@ from pygame.sprite import collide_rect
 from pygame.surface import Surface
 from Scripts.Common.Constants import *
 from typing import Tuple
+
+from Scripts.Common.SearchAlgorithmes import aStar
 from Scripts.Entities.SpriteEntity import SpriteEntity
 
 from Scripts.Common.CoordsConverter import *
+from Scripts.Map.Map import Map
+from Scripts.Map.Node import Node
 
 
 def inCellCenter(point: Tuple[int, int], offsetError):
@@ -222,3 +226,19 @@ def inMapRect(gridCenter: Tuple[int, int], position: Tuple[int, int]):
             y < gridCenter[1] - 1 and y > 0:
         return True
     return False
+
+def getCoinsPositions(coins: dict):
+    coinList = list()
+    for position in coins.keys():
+        if coins[position] != None:
+            coinList.append(position)
+    return coinList
+
+def getPathToTarget(startPoint: Tuple[int, int], target: Tuple[int, int], map: Map):
+    startNearestNeighbour = findNearestNodeTo(startPoint, map)
+    targetNearestNeighbour = findNearestNodeTo(target, map)
+    currentPath = aStar(
+        startNearestNeighbour,
+        targetNearestNeighbour,
+        COLORS.WHITE,
+        self.layer1)

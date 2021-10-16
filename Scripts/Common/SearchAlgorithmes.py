@@ -1,3 +1,5 @@
+from math import sqrt, pow
+
 from Scripts.Common.CommonFuncs import *
 from Scripts.Map.Node import Node
 
@@ -20,6 +22,71 @@ def bfs(startNode: Node, targetNode: Node, color, surface):
                 newPath.append(nodeAndDistance[0])
                 queue.append((nodeAndDistance[0], newPath))
 
+def getDistanceToTarget(point: Tuple[int, int], target: Tuple[int, int]):
+    # c = sqrt(a^2 + b^2)
+    a = point[0] - target[0]
+    b = point[1] - target[1]
+    c = sqrt(pow(a, 2) + pow(b, 2))
+    return c
+
+def heuristicFunction(currentNode: Node, direction: int, target: Node):
+    if currentNode.neighbourNodesAndDistances[direction] == None:
+        return None
+    totalDistance = 0
+    totalDistance += currentNode.neighbourNodesAndDistances[direction][1]
+    totalDistance += getDistanceToTarget(currentNode.neighbourNodesAndDistances[direction][0].gridPosition, target.gridPosition)
+    return totalDistance
+
+
+def aStar(startNode: Node, targetNode: Node, color, surface):
+    path = list()
+    path.append(startNode)
+    while path[-1] != targetNode:
+        currentNode = path[-1]
+        bestDirection = None
+
+        for direction in currentNode.neighbourNodesAndDistances.keys():
+            neighbourInfo = currentNode.neighbourNodesAndDistances[direction]
+            if neighbourInfo == None:
+                continue
+            if path.__contains__(neighbourInfo[0]):
+                continue
+            if neighbourInfo[0] == targetNode:
+                path.append(targetNode)
+                DrawPath(path, color, surface)
+                return path
+            if bestDirection == None:
+                bestDirection = direction
+                continue
+            if heuristicFunction(path[-1], direction, targetNode) < \
+                heuristicFunction(path[-1], bestDirection, targetNode):
+                bestDirection = direction
+        path.append(currentNode.neighbourNodesAndDistances[bestDirection][0])
+
+
+
+
+        
+
+
+
+
+    queue = [(startNode, [startNode])]
+    visited = list()
+    while queue:
+        node, path = queue.pop(0)
+        visited.append(node)
+        if node == targetNode:
+            DrawPath(path, color, surface)
+            return path
+
+        for nodeAndDistance in node.neighbourNodesAndDistances.values():
+            if nodeAndDistance == None:
+                continue
+            if visited.__contains__(nodeAndDistance[0]) == False:
+                newPath = path.copy()
+                newPath.append(nodeAndDistance[0])
+                queue.append((nodeAndDistance[0], newPath))
 
 # refactor
 def dfs(startNode: Node, targetNode: Node, color, screen, map):

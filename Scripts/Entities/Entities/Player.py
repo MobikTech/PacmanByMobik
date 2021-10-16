@@ -7,8 +7,8 @@ from Scripts.Entities.SpriteEntity import SpriteEntity
 
 
 class Player(CollidableEntity):
-    PLAYER_SPEED = 2
-    START_HP = 1
+    PLAYER_SPEED = 1
+    START_HP = 3
     GHOST_DAMAGE = 1
     COIN_SCORE_COST = 10
 
@@ -23,17 +23,23 @@ class Player(CollidableEntity):
         self.startDirection = DIRECTIONS.RIGHT
         self.currentDirection = self.startDirection
 
-        # refactor fields
         self.score = 0
         self.hp = Player.START_HP
 
-    def tryMovePlayer(self):
-        newDirection = self._tryChangeDirection(self.colorMap, self.spriteEntity, self.currentDirection)
-        if newDirection != None:
-            self.currentDirection = newDirection
+    def tryMovePlayer(self, newDirection):
+        # newDirection = self._tryChangeDirection(self.colorMap, self.spriteEntity, self.currentDirection)
+        if inCellCenter(self.spriteEntity.sprite.rect.center, 1):
+            playerGridPosition = worldToGridT(self.spriteEntity.sprite.rect.center)
+            if getCellType(self.colorMap, playerGridPosition) == CELL_TYPE.MAP_CROSSROAD:
+                if newDirection != None and self.currentDirection != newDirection:
+                    self.spriteEntity.sprite.rect.center = gridToWorldT(playerGridPosition)
+                    self.currentDirection = newDirection
+        moveSpriteEntity(self.spriteEntity, self.currentDirection, self.speed)
 
-        if self._canMove(self.spriteEntity, self.currentDirection, self.colorMap):
-            moveSpriteEntity(self.spriteEntity, self.currentDirection, self.speed)
+        # if newDirection != None and self.currentDirection != newDirection:
+        #     self.currentDirection = newDirection
+        # if self._canMove(self.spriteEntity, self.currentDirection, self.colorMap):
+        #     moveSpriteEntity(self.spriteEntity, self.currentDirection, self.speed)
 
     def _tryChangeDirection(self, colorMap: list[list[tuple[int, int, int, int]]], sprite: SpriteEntity,
                             currentDirection: int):
