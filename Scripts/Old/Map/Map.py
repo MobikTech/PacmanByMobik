@@ -1,9 +1,9 @@
 from pygame import Surface
-from pygame.sprite import Sprite, Group
+from pygame.sprite import Group
 
-from Scripts.Common.CommonFuncs import *
-from Scripts.Map.Node import Node
-from Scripts.Common.CoordsConverter import *
+from Scripts.Old.Common.CommonFuncs import *
+from Scripts.Old.Map.Node import Node
+from Scripts.Old.Common.CoordsConverter import *
 
 
 #region Map-making inctructions:

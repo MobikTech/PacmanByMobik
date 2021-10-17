@@ -1,7 +1,7 @@
 from math import sqrt, pow
 
-from Scripts.Common.CommonFuncs import *
-from Scripts.Map.Node import Node
+from Scripts.Old.Common.CommonFuncs import *
+from Scripts.Old.Map.Node import Node
 
 
 def bfs(startNode: Node, targetNode: Node, color, surface):

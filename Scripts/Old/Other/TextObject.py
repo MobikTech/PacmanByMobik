@@ -1,11 +1,8 @@
-from typing import Tuple
 from pygame.font import Font
-
-from Scripts.Common.Constants import *
 
 
 class TextObject(object):
-    FONT_PATH = 'D:\Projects\PYTHON\PacmanByMobik\Fonts\Pinmolddemo-jEaxv.otf'
+    FONT_PATH = '/Fonts/Pinmolddemo-jEaxv.otf'
     FONT_COLOR = COLORS.WHITE
     def __init__(self, fontSize: int, worldPosition: Tuple[int, int], text: str):
         self.fontColor = TextObject.FONT_COLOR

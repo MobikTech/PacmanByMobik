@@ -1,9 +1,9 @@
 from pygame.sprite import Group
-from Scripts.Common.CommonFuncs import *
-from Scripts.Common.CoordsConverter import *
-from Scripts.Common.Constants import *
-from Scripts.Entities.CollidableEntity import CollidableEntity
-from Scripts.Entities.SpriteEntity import SpriteEntity
+from Scripts.Old.Common.CommonFuncs import *
+from Scripts.Old.Common.CoordsConverter import *
+from Scripts.MVC.Model.Common.Constants import *
+from Scripts.Old.Entities.CollidableEntity import CollidableEntity
+from Scripts.Model.SpriteEntity import SpriteEntity
 import random
 
 

@@ -3,12 +3,10 @@ import random
 import pygame
 from pygame.sprite import collide_rect
 from pygame.surface import Surface
-from Scripts.Common.Constants import *
-from typing import Tuple
 
-from Scripts.Entities.SpriteEntity import SpriteEntity
+from Scripts.Model.SpriteEntity import SpriteEntity
 
-from Scripts.Common.CoordsConverter import *
+from Scripts.Old.Common.CoordsConverter import *
 
 
 def inCellCenter(point: Tuple[int, int], offsetError):

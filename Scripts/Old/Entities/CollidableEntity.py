@@ -1,4 +1,4 @@
-from Scripts.Entities.SpriteEntity import SpriteEntity
+from Scripts.Model.SpriteEntity import SpriteEntity
 
 
 class CollidableEntity():

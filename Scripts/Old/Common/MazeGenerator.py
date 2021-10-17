@@ -1,8 +1,5 @@
-import random
-
-from Scripts.Common.CommonFuncs import *
-from Scripts.Common.Constants import *
-from Scripts.Common.CoordsConverter import *
+from Scripts.Old.Common.CommonFuncs import *
+from Scripts.Old.Common.CoordsConverter import *
 
 
 class MazeGenerator():

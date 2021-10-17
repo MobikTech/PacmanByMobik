@@ -1,13 +1,12 @@
 from pygame.constants import KEYDOWN, K_ESCAPE, QUIT
 from pygame.image import load
 
-from Scripts.Common.MazeGenerator import MazeGenerator
-from Scripts.Common.SearchAlgorithmes import *
-from Scripts.Entities.Entities.Coin import *
-from Scripts.Entities.Entities.Ghost import *
-from Scripts.Entities.Entities.Player import Player
-from Scripts.Map.Map import Map
-from Scripts.Other.TextObject import TextObject
+from Scripts.Old.Common.SearchAlgorithmes import *
+from Scripts.MVC.Model.Entities.Coin import *
+from Scripts.MVC.Model.Entities.Ghost import *
+from Scripts.MVC.Model.Entities.Player import Player
+from Scripts.Old.Map.Map import Map
+from Scripts.Old.Other.TextObject import TextObject
 
 
 class GameController(object):

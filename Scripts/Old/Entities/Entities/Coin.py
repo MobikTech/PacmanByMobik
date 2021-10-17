@@ -1,7 +1,6 @@
 from pygame.sprite import Group
-from Scripts.Entities.CollidableEntity import CollidableEntity
-from Scripts.Entities.SpriteEntity import SpriteEntity
-from Scripts.Common.Constants import *
+from Scripts.Old.Entities.CollidableEntity import CollidableEntity
+from Scripts.Model.SpriteEntity import SpriteEntity
 from typing import Tuple
 
 class Coin(CollidableEntity):

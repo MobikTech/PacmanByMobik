@@ -1,8 +1,6 @@
-from typing import Tuple
 from pygame.image import load
 from pygame.surface import Surface
 from pygame.sprite import *
-from Scripts.Common.Constants import *
 
 
 class SpriteEntity(object):

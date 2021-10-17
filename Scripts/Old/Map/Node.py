@@ -1,4 +1,3 @@
-from Scripts.Common.CommonFuncs import *
 # from Map import Map
 # from Player import Player
 
