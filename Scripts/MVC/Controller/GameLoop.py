@@ -25,22 +25,24 @@ class GameInfo():
     def __init__(self):
         self.__mazeGenerator = MazeGenerator()
         self.map = Map(self.__mazeGenerator)
-        # self.player = Player(self.map.playerStartPosition,
-        #                      self.map.playerStartDirection)
-        #
-        # self.ghosts = list()
-        # self.__initGhosts()
-        # self.coinsContainer = CoinsContainer(self.map)
+        self.player = Player(self.map.playerStartPosition,
+                             self.map.playerStartDirection)
+
+        self.ghosts = list()
+        self.__initGhosts()
+        self.coinsContainer = CoinsContainer(self.map)
         self.background = self.__mazeGenerator.backgroundImage
 
-    # def __initGhosts(self):
-    #     for type in [GHOST_TYPE.RIKKO,
-    #                  GHOST_TYPE.PINKY,
-    #                  GHOST_TYPE.GREENKY,
-    #                  GHOST_TYPE.CLYNE]:
-    #         self.ghosts.append(Ghost(self.map.ghostsStartPosition,
-    #                                  self.map.ghostsStartDirection,
-    #                                  type))
+    def __initGhosts(self):
+        ghostTypes = [GHOST_TYPE.RIKKO]
+        # ghostTypes = [GHOST_TYPE.RIKKO,
+        #               GHOST_TYPE.PINKY,
+        #               GHOST_TYPE.GREENKY,
+        #               GHOST_TYPE.CLYNE]
+        for type in ghostTypes:
+            self.ghosts.append(Ghost(self.map.ghostsStartPosition,
+                                     self.map.ghostsStartDirection,
+                                     type))
 
 
 class GameLoop():
@@ -65,7 +67,7 @@ class MotionManager():
 
     @staticmethod
     def tryMoveEntities(gameInfo: GameInfo, events: Events):
-        MotionManager.__tryMovePlayer(gameInfo, events.playerPathCalculated)
+        # MotionManager.__tryMovePlayer(gameInfo, events.playerPathCalculated)
         MotionManager.__tryMoveGhosts(gameInfo, events.ghostsPathCalculated)
 
     #region PlayerMovement

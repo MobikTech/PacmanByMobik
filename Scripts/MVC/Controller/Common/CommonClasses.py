@@ -1,3 +1,5 @@
+import random
+
 from Scripts.MVC.Controller.Common.Constants import *
 from Scripts.MVC.Model.Navigation.Coords import Coords
 
@@ -47,6 +49,19 @@ class DirectionManager():
                 possibleDirections.append(direction)
         return possibleDirections
 
+    @staticmethod
+    def getOppositeToDirection(direction):
+        if direction == DIRECTIONS.UP:
+            return DIRECTIONS.DOWN
+        elif direction == DIRECTIONS.DOWN:
+            return DIRECTIONS.UP
+        elif direction == DIRECTIONS.RIGHT:
+            return DIRECTIONS.LEFT
+        elif direction == DIRECTIONS.LEFT:
+            return DIRECTIONS.RIGHT
+        raise NotImplementedError
+
+
     # todo remove
     @staticmethod
     def directionToNormalizedVector(direction: int):
@@ -59,3 +74,9 @@ class DirectionManager():
         elif direction == DIRECTIONS.LEFT:
             return VECTORS.VECTOR_LEFT
         raise Exception("Was received incorrect direction")
+
+
+class Random():
+    @staticmethod
+    def getBool(probability: float):
+        return random.random() < probability

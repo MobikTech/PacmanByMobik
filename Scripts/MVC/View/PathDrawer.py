@@ -28,5 +28,4 @@ class PathDrawer():
             #                     currentCoords.getTuple() != targetPoint.getTuple()
             currentCoords = currentCoords.getOffsetted(currentDirection, 1)
         pygame.draw.circle(surface, color, CoordsConverter.gridToWorld(currentCoords).getTuple(), POINT_SIZE)
-        print('new draw')
 
