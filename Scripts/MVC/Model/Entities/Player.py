@@ -1,4 +1,5 @@
 from Scripts.MVC.Model.Navigation.Coords import Coords
+from Scripts.MVC.Controller.Common.CommonClasses import CoordsConverter
 
 
 class Player(object):
@@ -7,8 +8,18 @@ class Player(object):
     def __init__(self,
                  startPosition: Coords,
                  startDirection: str):
-        self.__startCoords = startPosition
-        self.__startDirection = startDirection
+        self.startCoords = startPosition
+        self.startDirection = startDirection
 
-        self.coords = Coords()
+        self.coords = startPosition.__copy__()
+        self.coordsWorld = CoordsConverter.gridToWorld(self.coords)
+
         self.direction = startDirection
+
+    def move(self):
+        self.coordsWorld.offsetTo(self.direction, Player.SPEED)
+        self.coords = CoordsConverter.worldToGrid(self.coordsWorld)
+
+    # todo auto game handler
+    def moveGrid(self):
+        self.coords.offsetTo(self.direction, 1)

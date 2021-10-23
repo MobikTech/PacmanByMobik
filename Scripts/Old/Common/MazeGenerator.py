@@ -14,7 +14,7 @@ class MazeGenerator():
         self.colorMap = self.initializeColorMap()
 
     def initializeColorMap(self):
-        colorMap = [[CELL_TYPE.MAP_WALL for x in range(COLUMNS_COUNT)] for y in range(ROWS_COUNT)]
+        colorMap = [[CELL_TYPE.WALL for x in range(COLUMNS_COUNT)] for y in range(ROWS_COUNT)]
 
         # turnCount = 0
         # currentPosition = (CENTER_GRID_SPACE[0], CENTER_GRID_SPACE[0] - 1)
@@ -38,7 +38,7 @@ class MazeGenerator():
         for x in range(COLUMNS_COUNT):
             for y in range(ROWS_COUNT):
                 if (x, y) == CENTER_GRID_SPACE:
-                    colorMap[x][y] = CELL_TYPE.MAP_GHOSTS_START_POSITION
+                    colorMap[x][y] = CELL_TYPE.GHOSTS_START_POSITION
                 elif x > 0 and x < COLUMNS_COUNT - 1 and y > CENTER_GRID_SPACE[1] + 1 and y < ROWS_COUNT - 1:
                     colorMap[x][y] = CELL_TYPE.MAP_REST_SPACE
 
@@ -47,9 +47,9 @@ class MazeGenerator():
                         random.randint(1, MazeGenerator.CROSSROAD_APPEARANCE_CHANCE) == 1 and \
                         hasNeighbourCells((x, y), colorMap) == False:
                     crossroads.append((x, y))
-                    colorMap[x][y] = CELL_TYPE.MAP_CROSSROAD
+                    colorMap[x][y] = CELL_TYPE.CROSSROAD
                 else:
-                    colorMap[x][y] = CELL_TYPE.MAP_WALL
+                    colorMap[x][y] = CELL_TYPE.WALL
 
         for crossroad in crossroads:
             _addRoadsToCrossroad(crossroad, colorMap, crossroads)
@@ -101,17 +101,17 @@ def _tryAddRoadsByDirection(crossroad, direction, colorMap, crossroads):
 
         if inMapRect(CENTER_GRID_SPACE, newPosition) == False:
             crossroads.append(colorMap[currentPosition[0]][currentPosition[1]])
-            colorMap[currentPosition[0]][currentPosition[1]] = CELL_TYPE.MAP_CROSSROAD
+            colorMap[currentPosition[0]][currentPosition[1]] = CELL_TYPE.CROSSROAD
             _tryAddRoadsByDirection(currentPosition, getOppositesToDirection(direction), colorMap, crossroads)
             break
-        elif colorMap[x][y] == CELL_TYPE.MAP_CROSSROAD:
+        elif colorMap[x][y] == CELL_TYPE.CROSSROAD:
             break
         # elif hasCrossroadNeighboursWithoutCurrent(newPosition, colorMap, direction):
         #     tryRemoveSideCrossroads(newPosition, colorMap, direction, crossroads)
         #     colorMap[x][y] = CELL_TYPE.MAP_CROSSROAD
         #     break
         else:
-            colorMap[x][y] = CELL_TYPE.MAP_ROAD
+            colorMap[x][y] = CELL_TYPE.ROAD
             currentPosition = newPosition
 
 
@@ -140,22 +140,22 @@ def _tryAddRoadsByDirection(crossroad, direction, colorMap, crossroads):
 def hasCrossroadNeighboursWithoutCurrent(point, colorMap, direction):
     for direction in getAnotherDirections(direction):
         x, y = getOffsettedPoint(point, direction, 1)
-        if colorMap[x][y] == CELL_TYPE.MAP_CROSSROAD:
+        if colorMap[x][y] == CELL_TYPE.CROSSROAD:
             return True
     return False
 
 def tryRemoveSideCrossroads(point, colorMap, direction, crossroads: list):
     for direction in getAnotherDirections(direction):
         x, y = offsettedPoint = getOffsettedPoint(point, direction, 1)
-        if colorMap[x][y] == CELL_TYPE.MAP_CROSSROAD:
+        if colorMap[x][y] == CELL_TYPE.CROSSROAD:
             if isConnectedWithRoad(offsettedPoint, colorMap) == False:
                 crossroads.remove(offsettedPoint)
-                colorMap[x][y] = CELL_TYPE.MAP_WALL
+                colorMap[x][y] = CELL_TYPE.WALL
 
 def isConnectedWithRoad(point, colorMap):
     for direction in [DIRECTIONS.UP, DIRECTIONS.DOWN, DIRECTIONS.RIGHT, DIRECTIONS.LEFT]:
         x, y = getOffsettedPoint(point, direction, 1)
-        if colorMap[x][y] == CELL_TYPE.MAP_ROAD:
+        if colorMap[x][y] == CELL_TYPE.ROAD:
             return True
     return False
 
@@ -169,9 +169,9 @@ def hasOppositeNeighbourCells(point: Tuple[int, int], direction: int, colorMap: 
     oppositeDirections = getOppositesToDirection(direction)
     for oppositeDirection in oppositeDirections:
         x, y = getOffsettedPoint(point, oppositeDirection, 1)
-        if colorMap[x][y] == CELL_TYPE.MAP_ROAD:
+        if colorMap[x][y] == CELL_TYPE.ROAD:
             return True
-        elif colorMap[x][y] == CELL_TYPE.MAP_CROSSROAD:
+        elif colorMap[x][y] == CELL_TYPE.CROSSROAD:
             # tryDeleteCrossroad((x, y), colorMap, crossroads)
             return True
     return False
@@ -179,7 +179,7 @@ def hasOppositeNeighbourCells(point: Tuple[int, int], direction: int, colorMap: 
 def hasNeighbourCells(point: Tuple[int, int], colorMap: list[list[tuple[int, int, int, int]]]):
     for direction in [DIRECTIONS.UP, DIRECTIONS.DOWN, DIRECTIONS.RIGHT, DIRECTIONS.LEFT]:
         x, y = getOffsettedPoint(point, direction, 1)
-        if colorMap[x][y] in [CELL_TYPE.MAP_ROAD, CELL_TYPE.MAP_CROSSROAD]:
+        if colorMap[x][y] in [CELL_TYPE.ROAD, CELL_TYPE.CROSSROAD]:
             return True
     for doubleDirection in [(DIRECTIONS.UP, DIRECTIONS.RIGHT),
                             (DIRECTIONS.UP, DIRECTIONS.LEFT),
@@ -187,7 +187,7 @@ def hasNeighbourCells(point: Tuple[int, int], colorMap: list[list[tuple[int, int
                             (DIRECTIONS.DOWN, DIRECTIONS.LEFT)]:
         offsettedPoint = getOffsettedPoint(point, doubleDirection[0], 1)
         x, y = getOffsettedPoint(offsettedPoint, doubleDirection[1], 1)
-        if colorMap[x][y] in [CELL_TYPE.MAP_ROAD, CELL_TYPE.MAP_CROSSROAD]:
+        if colorMap[x][y] in [CELL_TYPE.ROAD, CELL_TYPE.CROSSROAD]:
             return True
     return False
 

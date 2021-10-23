@@ -1,22 +1,16 @@
+from Scripts.MVC.Controller.MazeInfo.MazeGenerator import MazeGenerator
 from Scripts.MVC.Model.Navigation.Coords import Coords
-from Scripts.MVC.Model.Navigation.Nodes import Node
 
 
 class Map():
-    def __init__(self,
-                 grid: dict[tuple[int, int]],
-                 playerStartPos: tuple[int, int],
-                 ghostsStartPos: tuple[int, int],
-                 playerStartDir: str,
-                 ghostsStartDir: str,
-                 nodeDict: dict[Node]
-                 ):
-        self.grid = grid
+    def __init__(self, mazeGenerator: MazeGenerator):
+        self.grid = mazeGenerator.grid
 
-        self.playerStartPosition = Coords(playerStartPos)
-        self.ghostsStartPosition = Coords(ghostsStartPos)
+        self.playerStartPosition = Coords(coords=mazeGenerator.playerStartPosition)
+        self.ghostsStartPosition = Coords(coords=mazeGenerator.ghostsStartPosition)
 
-        self.playerStartDirection = playerStartDir
-        self.ghostsStartDirection = ghostsStartDir
+        self.playerStartDirection = mazeGenerator.playerStartDirection
+        self.ghostsStartDirection = mazeGenerator.ghostsStartDirection
 
-        self.nodesDictionary = nodeDict
+        self.nodesDictionary = mazeGenerator.nodeDictionary
+        self.roadsPositionsList = mazeGenerator.roadsPositions

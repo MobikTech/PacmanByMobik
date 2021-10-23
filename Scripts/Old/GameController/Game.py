@@ -140,7 +140,7 @@ class GameController(object):
 
         colorMap = getColorMapDict(self.currentMap.colorMap)
         if inCellCenter(self.player.spriteEntity.rect.center, 2) and \
-                colorMap[currentPlayerPosition] == CELL_TYPE.MAP_CROSSROAD and \
+                colorMap[currentPlayerPosition] == CELL_TYPE.CROSSROAD and \
                 self.player.lastVisitedCrossroad != currentPlayerPosition:
             self.player.spriteEntity.rect.center = gridToWorldT(currentPlayerPosition)
             self.player.lastVisitedCrossroad = currentPlayerPosition

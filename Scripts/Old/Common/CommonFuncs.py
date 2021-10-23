@@ -29,7 +29,7 @@ def findNearestNodeTo(gridPosition, map):
     # if inMapRect(CENTER_GRID_SPACE, gridPosition) == False:
     #     raise Exception('position over the grid of playable map')
     x, y = gridPosition
-    if map.colorMap[x][y] == CELL_TYPE.MAP_CROSSROAD:
+    if map.colorMap[x][y] == CELL_TYPE.CROSSROAD:
         return nodes[gridPosition]
 
     rayLength = 1
@@ -37,10 +37,10 @@ def findNearestNodeTo(gridPosition, map):
     while True:
         for direction in directionsList:
             newPoint = getOffsettedPoint(gridPosition, direction, rayLength)
-            if map.colorMap[newPoint[0]][newPoint[1]] == CELL_TYPE.MAP_WALL:
+            if map.colorMap[newPoint[0]][newPoint[1]] == CELL_TYPE.WALL:
                 directionsList.remove(direction)
                 continue
-            elif map.colorMap[newPoint[0]][newPoint[1]] == CELL_TYPE.MAP_CROSSROAD:
+            elif map.colorMap[newPoint[0]][newPoint[1]] == CELL_TYPE.CROSSROAD:
                 return nodes[newPoint]
         rayLength += 1
 
@@ -60,7 +60,7 @@ def DrawPath(path: list, color, surface):
             currentPosition = getOffsettedPoint(currentPosition, directionToNextNode, 1)
         currentIndex += 1
 
-
+#
 def DrawDirectionsPath(path: list[int], startPoint, target, colorMap, color, surface):
     POINT_SIZE = 6
     colorMapDict = getColorMapDict(colorMap)
@@ -70,13 +70,13 @@ def DrawDirectionsPath(path: list[int], startPoint, target, colorMap, color, sur
 
     while currentPosition != target:
         pygame.draw.circle(surface, color, gridToWorldT(currentPosition), POINT_SIZE)
-        if colorMapDict[currentPosition] == CELL_TYPE.MAP_CROSSROAD and \
+        if colorMapDict[currentPosition] == CELL_TYPE.CROSSROAD and \
                 currentPosition != target:
             currentDirectionIndex += 1
             currentDirection = path[currentDirectionIndex]
         currentPosition = getOffsettedPoint(currentPosition, currentDirection, 1)
 
-
+#
 def getDirectionToNeighbour(startPoint: Tuple[int, int], endPoint: Tuple[int, int]):
     xS, yS = startPoint
     xE, yE = endPoint
@@ -146,7 +146,7 @@ def getColorMap(pixelColorImage: Surface):
             colorMap[i][k] = pixelColorImage.unmap_rgb(pixelMap[i][k])
     return colorMap
 
-
+#
 def directionToNormalizedVector(direction: int):
     if direction == DIRECTIONS.UP:
         return VECTORS.VECTOR_UP
@@ -167,11 +167,11 @@ def getNextCellType(sprite: SpriteEntity, colorMap: list[list[tuple[int, int, in
     nextCellPosition = worldToGridT(getOffsettedPoint(sprite.rect.center, direction, CELL_HALF_SIZE + 1))
     return getCellType(colorMap, nextCellPosition)
 
-
+#
 def getPossibleDirections(sprite: SpriteEntity, colorMap: list[list[tuple[int, int, int, int]]]):
-    possibleCellTypes = (CELL_TYPE.MAP_ROAD,
-                         CELL_TYPE.MAP_CROSSROAD,
-                         CELL_TYPE.MAP_PACMAN_START_POSITION)
+    possibleCellTypes = (CELL_TYPE.ROAD,
+                         CELL_TYPE.CROSSROAD,
+                         CELL_TYPE.PACMAN_START_POSITION)
     possibleDirections = list()
     for direction in (DIRECTIONS.UP,
                       DIRECTIONS.DOWN,
@@ -181,7 +181,7 @@ def getPossibleDirections(sprite: SpriteEntity, colorMap: list[list[tuple[int, i
             possibleDirections.append(direction)
     return possibleDirections
 
-
+#
 def getOffsettedPoint(point: Tuple[int, int],
                       direction: int,
                       offset: int):
@@ -230,32 +230,7 @@ def getCoinsPositions(coins: dict):
     return coinList
 
 
-# def getPathToTarget(startPoint: Tuple[int, int], target: Tuple[int, int], map):
-#     directionsPath = list()
 #
-#     startNearestNeighbour = findNearestNodeTo(startPoint, map)
-#     targetNearestNeighbour = findNearestNodeTo(target, map)
-#     nodesPath = aStar(startNearestNeighbour, targetNearestNeighbour)
-#
-#     firstNode = nodesPath[0]
-#     secondNode = nodesPath[1]
-#     lastNode = nodesPath[-1]
-#     preLastNode = nodesPath[-2]
-#
-#     if not isBetweenNeighborNodes(firstNode, secondNode, startPoint):
-#         directionsPath.append(getDirectionToNeighbour(startPoint,
-#                                                       nodesPath[0].gridPosition))
-#     for index in range(len(nodesPath) - 1):
-#         direction = getDirectionToNeighbour(nodesPath[index].gridPosition,
-#                                             nodesPath[index + 1].gridPosition)
-#         directionsPath.append(direction)
-#
-#     if not isBetweenNeighborNodes(lastNode, preLastNode, target):
-#         directionsPath.append(getDirectionToNeighbour(nodesPath[-1].gridPosition,
-#                                                       target))
-#     return directionsPath
-
-
 def isBetweenNeighborNodes(firstNode, secondNode, point: Tuple[int, int]):
     if firstNode.gridPosition[0] == secondNode.gridPosition[0]:
         if point[0] == firstNode.gridPosition[0]:

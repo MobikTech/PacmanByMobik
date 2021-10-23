@@ -1,5 +1,9 @@
 import pygame
-from Scripts.MVC.View.Constants import *
+from Scripts.MVC.Controller.Common.Constants import *
+from Scripts.MVC.Controller.GameLoop import GameLoop
+from Scripts.MVC.View.PathDrawer import PathDrawer
+from Scripts.MVC.View.SpriteEntity import SpriteEntity
+from Scripts.MVC.View.SpritesContatiner import SpritesContainer
 
 
 class GameController(object):
@@ -7,38 +11,54 @@ class GameController(object):
 
     def __init__(self):
         pygame.init()
-        self.screen = pygame.display.set_mode(SCREEN_SIZE)
+        self.screen = pygame.display.set_mode(SCREEN.SCREEN_SIZE)
         self.clock = pygame.time.Clock()
         self.gameOver = False
+        self.gameLooper = GameLoop()
+        self.layer1 = self.gameLooper.info.background
 
-
+        self.spritesContainer = SpritesContainer(self.gameLooper)
 
     def start(self):
-        pass
+        self.gameLooper.start()
+        self.gameLooper.events.playerPathCalculated = self.__drawPath
 
     def update(self):
         if self.gameOver == True:
-            self._endGame()
+            self.__endGame()
         else:
             self.clock.tick(FPS)
-            self._eventHandler()
-            self.render()
+            self.__eventHandler()
+            self.gameLooper.update()
+            self.__render()
 
-    def render(self):
-        # self._clearScreen()
-        self.screen.blit(self.layer1, SCREEN_START_POINT)
+    def __render(self):
+        self.__clearScreen()
+        self.spritesContainer.updateSpritesPositions()
+        self.spritesContainer.spritesGroup.draw(self.layer1)
+        self.screen.blit(self.layer1, SCREEN.SCREEN_START_POINT)
 
-    def _eventHandler(self):
+    def __eventHandler(self):
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 exit()
-    #
-    # def _clearScreen(self):
-    #     self.layer1 = self.currentMap.background.copy()
 
-    def _endGame(self):
-        self._clearScreen()
-        self.screen.blit(self.layer1, SCREEN_START_POINT)
+    def __endGame(self):
+        self.__clearScreen()
+        self.screen.blit(self.layer1, SCREEN.SCREEN_START_POINT)
+
+    def __clearScreen(self):
+        self.layer1 = self.gameLooper.info.background.copy()
+
+
+    def __drawPath(self, path, startPoint, targetPoint, color):
+        PathDrawer.DrawPath(path,
+                            startPoint,
+                            targetPoint,
+                            self.gameLooper.info.map.grid,
+                            color,
+                            self.layer1)
+
 
 
 gameController = GameController()

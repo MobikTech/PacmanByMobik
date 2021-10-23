@@ -29,7 +29,7 @@ class Ghost(CollidableEntity):
     def moveGhost(self, newDirection):
         if inCellCenter(self.spriteEntity.sprite.rect.center, 1):
             ghostGridPosition = worldToGridT(self.spriteEntity.sprite.rect.center)
-            if getCellType(self.colorMap, ghostGridPosition) == CELL_TYPE.MAP_CROSSROAD:
+            if getCellType(self.colorMap, ghostGridPosition) == CELL_TYPE.CROSSROAD:
                 self.spriteEntity.sprite.rect.center = gridToWorldT(ghostGridPosition)
                 if newDirection != None:
                     self.currentDirection = newDirection
@@ -44,7 +44,7 @@ class Ghost(CollidableEntity):
 
         if inCellCenter(sprite.rect.center, 1):
             playerGridPosition = worldToGridT(sprite.rect.center)
-            if getCellType(colorMap, playerGridPosition) == CELL_TYPE.MAP_CROSSROAD:
+            if getCellType(colorMap, playerGridPosition) == CELL_TYPE.CROSSROAD:
                 sprite.rect.center = gridToWorldT(playerGridPosition)
                 return random.choice(possibleDirections)
         return None

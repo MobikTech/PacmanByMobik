@@ -2,14 +2,15 @@ import random
 import pygame
 from pygame.image import load
 from Scripts.MVC.Controller.Common.Constants import *
+from Scripts.MVC.Controller.MazeInfo.SurfaceMaker import SurfaceMaker
 from Scripts.MVC.Model.Navigation.Coords import Coords
 from Scripts.MVC.Model.Navigation.Nodes import Node, NodeInfo
-from Scripts.MVC.Model.Common.DirectionFuncs import getPossibleDirections
+from Scripts.MVC.Controller.Common.CommonClasses import DirectionManager
 
 
 class MazeGenerator():
     def __init__(self):
-        self.grid: dict[tuple[int, int]] = dict()
+        self.grid = dict()
 
         self.playerStartPosition = None
         self.playerStartDirection = None
@@ -20,12 +21,15 @@ class MazeGenerator():
         self.roadsPositions = list()
         self.nodeDictionary = dict()
 
+        self.backgroundImage = None
+
         self.__setGridFromFile('pacman_map_1_31x31.png')
         # self.__setGridRandomly()
         self.__scanGrid()
         self.__defineNodesNeighbours()
+        self.__setBackground()
 
-    def __setGridFromFile(self, fileName):
+    def __setGridFromFile(self, fileName: str):
         self.grid = getColorMap(load(MAIN_DIRECTORY + '\Sprites\\' + fileName))
 
     def __setGridRandomly(self):
@@ -34,33 +38,36 @@ class MazeGenerator():
     def __scanGrid(self):
         for x in range(GRID.COLUMNS_COUNT):
             for y in range(GRID.ROWS_COUNT):
-                currentCellColor = self.grid[(x, y)]
-                if currentCellColor == CELL_TYPE.MAP_PACMAN_START_POSITION:
+                currentCell = self.grid[(x, y)]
+                if currentCell == CELL_TYPE.PACMAN_START_POSITION:
                     self.playerStartPosition = Coords((x, y))
                     self.playerStartDirection = random.choice(
-                        getPossibleDirections(self.playerStartPosition, self.grid))
-                elif currentCellColor == CELL_TYPE.MAP_GHOSTS_START_POSITION:
+                        DirectionManager.getPossibleDirections(self.playerStartPosition, self.grid))
+                elif currentCell == CELL_TYPE.GHOSTS_START_POSITION:
                     self.ghostsStartPosition = Coords((x, y))
                     self.ghostsStartDirection = random.choice(
-                        getPossibleDirections(self.ghostsStartPosition, self.grid))
-                elif currentCellColor == CELL_TYPE.MAP_ROAD:
-                    self.roadsPositions.append(Coords((x, y)))
-                elif currentCellColor == CELL_TYPE.MAP_CROSSROAD:
+                        DirectionManager.getPossibleDirections(self.ghostsStartPosition, self.grid))
+                elif currentCell == CELL_TYPE.ROAD:
+                    self.roadsPositions.append((x, y))
+                elif currentCell == CELL_TYPE.CROSSROAD:
                     self.nodeDictionary[(x, y)] = Node((x, y))
 
     def __defineNodesNeighbours(self):
         for node in self.nodeDictionary.values():
             for direction in node.neighborsNodeInfo.keys():
-                offsettedPoint = node.coords.getOffsetted(direction, 1)
-                if self.grid[offsettedPoint] in (CELL_TYPE.MAP_ROAD,
-                                                 CELL_TYPE.MAP_CROSSROAD,
-                                                 CELL_TYPE.MAP_PACMAN_START_POSITION):
+                offsettedPoint = node.coords.getOffsetted(direction, 1).getTuple()
+                if self.grid[offsettedPoint] in (CELL_TYPE.ROAD,
+                                                 CELL_TYPE.CROSSROAD,
+                                                 CELL_TYPE.PACMAN_START_POSITION):
                     currentDistance = 1
-                    while self.grid[node.coords.getOffsetted(direction, currentDistance)] != CELL_TYPE.MAP_CROSSROAD:
+                    while self.grid[node.coords.getOffsetted(direction, currentDistance).getTuple()] != CELL_TYPE.CROSSROAD:
                         currentDistance += 1
                     node.neighborsNodeInfo[direction] = NodeInfo(
-                        self.nodeDictionary[node.coords.getOffsetted(direction, currentDistance)],
+                        self.nodeDictionary[node.coords.getOffsetted(direction, currentDistance).getTuple()],
                         currentDistance)
+
+    def __setBackground(self):
+        self.backgroundImage = SurfaceMaker.getSurface(self.grid)
 
 
 def getColorMap(pixelColorImage: pygame.Surface):
@@ -69,5 +76,5 @@ def getColorMap(pixelColorImage: pygame.Surface):
     colorMap = dict()
     for i in range(x):
         for k in range(y):
-            colorMap[(x, y)] = pixelColorImage.unmap_rgb(pixelMap[i][k])
+            colorMap[(i, k)] = SurfaceMaker.getCellType(pixelColorImage.unmap_rgb(pixelMap[i][k]))
     return colorMap

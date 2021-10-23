@@ -52,7 +52,7 @@ class Player(CollidableEntity):
             return direction
         if inCellCenter(sprite.rect.center, 2):
             playerGridPosition = worldToGridT(sprite.rect.center)
-            if getCellType(colorMap, playerGridPosition) == CELL_TYPE.MAP_CROSSROAD:
+            if getCellType(colorMap, playerGridPosition) == CELL_TYPE.CROSSROAD:
                 # aligning in cell center
                 sprite.rect.center = gridToWorldT(playerGridPosition)
                 return direction
@@ -61,7 +61,7 @@ class Player(CollidableEntity):
     def _canMove(self, sprite: SpriteEntity, currentDirection: int, colorMap: list[list[tuple[int, int, int, int]]]):
         nextCellPosition = worldToGridT(getOffsettedPoint(sprite.rect.center, currentDirection, CELL_HALF_SIZE + 1))
         nextCellType = getCellType(colorMap, nextCellPosition)
-        if nextCellType in (CELL_TYPE.MAP_ROAD, CELL_TYPE.MAP_CROSSROAD, CELL_TYPE.MAP_PACMAN_START_POSITION):
+        if nextCellType in (CELL_TYPE.ROAD, CELL_TYPE.CROSSROAD, CELL_TYPE.PACMAN_START_POSITION):
             return True
         return False
 
