@@ -11,6 +11,14 @@ class GRID():
     CENTER = (int(COLUMNS_COUNT / 2), int(ROWS_COUNT / 2))
 
 
+class RANDOM_MAP_SETTINGS():
+    MAP_TOP_LEFT_CORNER = (1, 1)
+    MAP_BOTTOM_RIGHT_CORNER = (29, 15)
+
+    REST_SPACE_TOP_LEFT_CORNER = (1, 18)
+    REST_SPACE_BOTTOM_RIGHT_CORNER = (29, 29)
+
+
 class SCREEN():
     SCREEN_START_POINT = (0, 0)
     SCREEN_WIDTH = CELL_SIZE * GRID.COLUMNS_COUNT
@@ -39,7 +47,6 @@ class CELL_TYPE():
     PACMAN_START_POSITION = 'pacman start position'
     GHOSTS_START_POSITION = 'ghosts start position'
     REST_SPACE = 'empty space'
-
 
 
 class DIRECTIONS():

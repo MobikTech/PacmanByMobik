@@ -68,7 +68,6 @@ class Algorithmes():
 
         startNearestNeighbour = NodesNavigationFuncs.findNearestNodeTo(startPoint, map)
         targetNearestNeighbour = NodesNavigationFuncs.findNearestNodeTo(target, map)
-        print(targetNearestNeighbour)
 
         nodesPath = None
         if algorithmType == SEARCH_ALGORITHMES.BFS:
@@ -84,22 +83,14 @@ class Algorithmes():
         if not NodesNavigationFuncs.isBetweenNeighborNodes(firstNode, secondNode, startPoint):
             directionsPath.append(MapNavigationFuncs.getDirectionToNeighbour(startPoint,
                                                                              firstNode.coords))
-            print('first dir added - ' + str(directionsPath[-1]))
         for index in range(len(nodesPath) - 1):
             direction = MapNavigationFuncs.getDirectionToNeighbour(nodesPath[index].coords,
                                                                    nodesPath[index + 1].coords)
             directionsPath.append(direction)
 
-        print(preLastNode)
-        print(lastNode)
         if not NodesNavigationFuncs.isBetweenNeighborNodes(lastNode, preLastNode, target):
             directionsPath.append(MapNavigationFuncs.getDirectionToNeighbour(lastNode.coords,
                                                                              target))
-            print('last dir added - ' + str(directionsPath[-1]))
-
-        print('start - ' + str(startPoint))
-        print('target - ' + str(target))
-        print(directionsPath)
         return directionsPath
 
 

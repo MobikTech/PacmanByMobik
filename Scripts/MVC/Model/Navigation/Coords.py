@@ -36,6 +36,11 @@ class Coords():
     def __copy__(self):
         return Coords((self.x, self.y))
 
+    def __eq__(self, other):
+        if self.x == other.x and self.y == other.y:
+            return True
+        return False
+
     @staticmethod
     def directionToNormalizedVector(direction: str):
         if direction == DIRECTIONS.UP:

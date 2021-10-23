@@ -17,7 +17,7 @@ class GameController(object):
         self.gameLooper = GameLoop()
         self.layer1 = self.gameLooper.info.background
 
-        self.spritesContainer = SpritesContainer(self.gameLooper)
+        # self.spritesContainer = SpritesContainer(self.gameLooper)
 
     def start(self):
         self.gameLooper.start()
@@ -29,13 +29,13 @@ class GameController(object):
         else:
             self.clock.tick(FPS)
             self.__eventHandler()
-            self.gameLooper.update()
             self.__render()
 
     def __render(self):
         self.__clearScreen()
-        self.spritesContainer.updateSpritesPositions()
-        self.spritesContainer.spritesGroup.draw(self.layer1)
+        # self.spritesContainer.updateSpritesPositions()
+        # self.spritesContainer.spritesGroup.draw(self.layer1)
+        # self.gameLooper.update()
         self.screen.blit(self.layer1, SCREEN.SCREEN_START_POINT)
 
     def __eventHandler(self):
@@ -52,7 +52,7 @@ class GameController(object):
 
 
     def __drawPath(self, path, startPoint, targetPoint, color):
-        PathDrawer.DrawPath(path,
+        PathDrawer.drawPath(path,
                             startPoint,
                             targetPoint,
                             self.gameLooper.info.map.grid,

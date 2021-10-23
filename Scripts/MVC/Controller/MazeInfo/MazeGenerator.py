@@ -2,6 +2,7 @@ import random
 import pygame
 from pygame.image import load
 from Scripts.MVC.Controller.Common.Constants import *
+from Scripts.MVC.Controller.MazeInfo.RandomMazeGenerator import RandomMazeGenerator
 from Scripts.MVC.Controller.MazeInfo.SurfaceMaker import SurfaceMaker
 from Scripts.MVC.Model.Navigation.Coords import Coords
 from Scripts.MVC.Model.Navigation.Nodes import Node, NodeInfo
@@ -23,17 +24,17 @@ class MazeGenerator():
 
         self.backgroundImage = None
 
-        self.__setGridFromFile('pacman_map_1_31x31.png')
-        # self.__setGridRandomly()
-        self.__scanGrid()
-        self.__defineNodesNeighbours()
+        # self.__setGridFromFile('pacman_map_1_31x31.png')
+        self.__setGridRandomly()
+        # self.__scanGrid()
+        # self.__defineNodesNeighbours()
         self.__setBackground()
 
     def __setGridFromFile(self, fileName: str):
         self.grid = getColorMap(load(MAIN_DIRECTORY + '\Sprites\\' + fileName))
 
     def __setGridRandomly(self):
-        pass
+        self.grid = RandomMazeGenerator.initializeGrid()
 
     def __scanGrid(self):
         for x in range(GRID.COLUMNS_COUNT):

@@ -7,7 +7,7 @@ from Scripts.MVC.Model.Navigation.Coords import Coords
 class PathDrawer():
 
     @staticmethod
-    def DrawPath(path: list[str],
+    def drawPath(path: list[str],
                  startPoint: Coords,
                  targetPoint: Coords,
                  grid: dict[tuple[int, int]],
@@ -28,4 +28,5 @@ class PathDrawer():
             #                     currentCoords.getTuple() != targetPoint.getTuple()
             currentCoords = currentCoords.getOffsetted(currentDirection, 1)
         pygame.draw.circle(surface, color, CoordsConverter.gridToWorld(currentCoords).getTuple(), POINT_SIZE)
+        print('new draw')
 
