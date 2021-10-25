@@ -22,6 +22,7 @@ class GameController(object):
     def start(self):
         self.gameLooper.start()
         self.gameLooper.events.playerPathCalculated = self.__drawPath
+        self.gameLooper.events.ghostsPathCalculated = self.__drawPath
 
     def update(self):
         if self.gameOver == True:

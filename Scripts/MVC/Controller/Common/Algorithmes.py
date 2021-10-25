@@ -10,7 +10,8 @@ from Scripts.MVC.Controller.Common.Constants import *
 class Algorithmes():
 
     @staticmethod
-    def __bfs(startNode: Node, targetNode: Node):
+    def __bfs(startNode: Node,
+              targetNode: Node):
         queue = [(startNode, [startNode])]
         visited = list()
         while queue:
@@ -19,51 +20,77 @@ class Algorithmes():
             if node == targetNode:
                 return path
 
-            for nodeAndDistance in node.neighbourNodesAndDistances.values():
-                if nodeAndDistance == None:
+            for nodeInfo in node.neighborsNodeInfo.values():
+                if nodeInfo == None:
                     continue
-                if visited.__contains__(nodeAndDistance[0]) == False:
+                if visited.__contains__(nodeInfo.node) == False:
                     newPath = path.copy()
-                    newPath.append(nodeAndDistance[0])
-                    queue.append((nodeAndDistance[0], newPath))
+                    newPath.append(nodeInfo.node)
+                    queue.append((nodeInfo.node, newPath))
 
     @staticmethod
-    def __aStar(startNode: Node, targetNode: Node):
+    def __aStar(startNode: Node,
+                targetNode: Node):
+        print('star')
         path = list()
         path.append(startNode)
         while path[-1] != targetNode:
+            print('while')
             currentNode = path[-1]
-            bestDirection = None
 
-            for direction in currentNode.neighborsNodeInfo.keys():
-                neighbourInfo = currentNode.neighborsNodeInfo[direction]
-                if neighbourInfo == None:
-                    continue
-                if path.__contains__(neighbourInfo.node):
-                    continue
-                if neighbourInfo.node == targetNode:
-                    path.append(targetNode)
-                    return path
-                if bestDirection == None:
-                    bestDirection = direction
-                    continue
-                if Algorithmes.__heuristicFunction(path[-1], direction, targetNode) < \
-                        Algorithmes.__heuristicFunction(path[-1], bestDirection, targetNode):
-                    bestDirection = direction
-            path.append(currentNode.neighborsNodeInfo[bestDirection].node)
+            # #get pre last node
+            if len(path) == 1:
+                lastNode = path[0]
+            else:
+                lastNode = path[-2]
+
+            bestNode = Algorithmes.__findBestNeighbour(currentNode, targetNode, lastNode)
+            path.append(bestNode)
+        return path
 
     @staticmethod
     def __heuristicFunction(currentNode: Node, direction: int, target: Node):
         if currentNode.neighborsNodeInfo[direction] == None:
             return None
         totalDistance = 0
-        totalDistance += currentNode.neighborsNodeInfo[direction].distanceToIt
+        totalDistance += currentNode.neighborsNodeInfo[direction].distanceToIt/3
         totalDistance += MapNavigationFuncs.getDistanceToTarget(currentNode.neighborsNodeInfo[direction].node.coords,
                                                                 target.coords)
         return totalDistance
 
     @staticmethod
-    def getPathToTarget(algorithmType: int, startPoint: Coords, target: Coords, map):
+    def __findBestNeighbour(node: Node, target: Node, lastNode: Node):
+        bestDirection = None
+        possibleDirections = NodesNavigationFuncs.getNodeDirections(node)
+        for direction in possibleDirections:
+            neighbourInfo = node.neighborsNodeInfo[direction]
+
+            # region last node checking
+            if len(possibleDirections) == 1:
+                return lastNode
+            elif neighbourInfo.node == lastNode:
+                continue
+            # endregion
+
+            if bestDirection == None:
+                bestDirection = direction
+                continue
+            if neighbourInfo.node == target:
+                return target
+
+
+
+            if Algorithmes.__heuristicFunction(node, direction, target) < \
+                    Algorithmes.__heuristicFunction(node, bestDirection, target):
+                bestDirection = direction
+
+        return node.neighborsNodeInfo[bestDirection].node
+
+    @staticmethod
+    def getPathToTarget(algorithmType: int,
+                        startPoint: Coords,
+                        target: Coords,
+                        map):
         directionsPath = list()
 
         startNearestNeighbour = NodesNavigationFuncs.findNearestNodeTo(startPoint, map)
@@ -75,10 +102,15 @@ class Algorithmes():
         elif algorithmType == SEARCH_ALGORITHMES.ASTAR:
             nodesPath = Algorithmes.__aStar(startNearestNeighbour, targetNearestNeighbour)
 
-        firstNode = nodesPath[0]
-        secondNode = nodesPath[1]
-        lastNode = nodesPath[-1]
-        preLastNode = nodesPath[-2]
+
+        if startNearestNeighbour == targetNearestNeighbour:
+            firstNode = secondNode = lastNode = preLastNode = nodesPath[0]
+        else:
+            firstNode = nodesPath[0]
+            secondNode = nodesPath[1]
+            lastNode = nodesPath[-1]
+            preLastNode = nodesPath[-2]
+
 
         if not NodesNavigationFuncs.isBetweenNeighborNodes(firstNode, secondNode, startPoint):
             directionsPath.append(MapNavigationFuncs.getDirectionToNeighbour(startPoint,
@@ -96,6 +128,15 @@ class Algorithmes():
 
 
 class NodesNavigationFuncs():
+
+    @staticmethod
+    def getNodeDirections(node: Node):
+        directions = list()
+        for direction in node.neighborsNodeInfo.keys():
+            if node.neighborsNodeInfo[direction] != None:
+                directions.append(direction)
+        return directions
+
 
     @staticmethod
     def findNearestNodeTo(coords: Coords, map: Map):

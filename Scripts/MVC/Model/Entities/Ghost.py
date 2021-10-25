@@ -14,6 +14,7 @@ class Ghost(object):
 
         self.coords = startPosition.__copy__()
         self.coordsWorld = CoordsConverter.gridToWorld(self.coords)
+
         self.direction = startDirection
         self.ghostType = type
 
