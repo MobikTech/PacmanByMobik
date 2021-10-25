@@ -15,9 +15,6 @@ from Scripts.MVC.View.PathDrawer import PathDrawer
 
 class Events():
     def __init__(self):
-        # self.playerMoveEvent = None
-        # self.ghostsMoveEvent = None
-
         self.playerPathCalculated = None
         self.ghostsPathCalculated = None
 
@@ -162,7 +159,7 @@ class MotionManager():
         MotionManager.currentPlayerStartPoint = gameInfo.player.coords
         # MotionManager.currentPlayerTarget = Coords((22, 14))
         MotionManager.currentPlayerTarget = Coords(random.choice(gameInfo.map.roadsPositionsList))
-        MotionManager.currentPlayerPath = Algorithmes.getPathToTarget(SEARCH_ALGORITHMES.BFS,
+        MotionManager.currentPlayerPath = Algorithmes.getPathToTarget(SEARCH_ALGORITHMES.ASTAR,
                                                                       MotionManager.currentPlayerStartPoint,
                                                                       MotionManager.currentPlayerTarget,
                                                                       gameInfo.map)

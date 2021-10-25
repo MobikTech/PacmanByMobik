@@ -6,7 +6,6 @@ from Scripts.MVC.Model.Navigation.Nodes import Node
 from Scripts.MVC.Controller.Common.Constants import *
 
 
-
 class Algorithmes():
 
     @staticmethod
@@ -31,60 +30,8 @@ class Algorithmes():
     @staticmethod
     def __aStar(startNode: Node,
                 targetNode: Node):
-        print('star')
-        path = list()
-        path.append(startNode)
-        while path[-1] != targetNode:
-            print('while')
-            currentNode = path[-1]
-
-            # #get pre last node
-            if len(path) == 1:
-                lastNode = path[0]
-            else:
-                lastNode = path[-2]
-
-            bestNode = Algorithmes.__findBestNeighbour(currentNode, targetNode, lastNode)
-            path.append(bestNode)
-        return path
-
-    @staticmethod
-    def __heuristicFunction(currentNode: Node, direction: int, target: Node):
-        if currentNode.neighborsNodeInfo[direction] == None:
-            return None
-        totalDistance = 0
-        totalDistance += currentNode.neighborsNodeInfo[direction].distanceToIt/3
-        totalDistance += MapNavigationFuncs.getDistanceToTarget(currentNode.neighborsNodeInfo[direction].node.coords,
-                                                                target.coords)
-        return totalDistance
-
-    @staticmethod
-    def __findBestNeighbour(node: Node, target: Node, lastNode: Node):
-        bestDirection = None
-        possibleDirections = NodesNavigationFuncs.getNodeDirections(node)
-        for direction in possibleDirections:
-            neighbourInfo = node.neighborsNodeInfo[direction]
-
-            # region last node checking
-            if len(possibleDirections) == 1:
-                return lastNode
-            elif neighbourInfo.node == lastNode:
-                continue
-            # endregion
-
-            if bestDirection == None:
-                bestDirection = direction
-                continue
-            if neighbourInfo.node == target:
-                return target
-
-
-
-            if Algorithmes.__heuristicFunction(node, direction, target) < \
-                    Algorithmes.__heuristicFunction(node, bestDirection, target):
-                bestDirection = direction
-
-        return node.neighborsNodeInfo[bestDirection].node
+        from Scripts.MVC.Controller.Common.AStarFuncs import AStarFuncs
+        return AStarFuncs.aStar(startNode, targetNode)
 
     @staticmethod
     def getPathToTarget(algorithmType: int,
@@ -102,7 +49,6 @@ class Algorithmes():
         elif algorithmType == SEARCH_ALGORITHMES.ASTAR:
             nodesPath = Algorithmes.__aStar(startNearestNeighbour, targetNearestNeighbour)
 
-
         if startNearestNeighbour == targetNearestNeighbour:
             firstNode = secondNode = lastNode = preLastNode = nodesPath[0]
         else:
@@ -110,7 +56,6 @@ class Algorithmes():
             secondNode = nodesPath[1]
             lastNode = nodesPath[-1]
             preLastNode = nodesPath[-2]
-
 
         if not NodesNavigationFuncs.isBetweenNeighborNodes(firstNode, secondNode, startPoint):
             directionsPath.append(MapNavigationFuncs.getDirectionToNeighbour(startPoint,
@@ -126,7 +71,6 @@ class Algorithmes():
         return directionsPath
 
 
-
 class NodesNavigationFuncs():
 
     @staticmethod
@@ -136,7 +80,6 @@ class NodesNavigationFuncs():
             if node.neighborsNodeInfo[direction] != None:
                 directions.append(direction)
         return directions
-
 
     @staticmethod
     def findNearestNodeTo(coords: Coords, map: Map):
@@ -153,7 +96,6 @@ class NodesNavigationFuncs():
             if map.grid[newCoords.getTuple()] != CELL_TYPE.WALL:
                 directionsList.append(direction)
 
-
         while True:
             for direction in directionsList:
                 newCoords = coords.getOffsetted(direction, rayLength)
@@ -167,18 +109,17 @@ class NodesNavigationFuncs():
             if point.x != firstNode.coords.x:
                 return False
             if (point.y >= firstNode.coords.y and point.y <= secondNode.coords.y) or \
-                (point.y >= secondNode.coords.y and point.y <= firstNode.coords.y):
+                    (point.y >= secondNode.coords.y and point.y <= firstNode.coords.y):
                 return True
             return False
         elif firstNode.coords.y == secondNode.coords.y:
             if point.y != firstNode.coords.y:
                 return False
             if (point.x >= firstNode.coords.x and point.x <= secondNode.coords.x) or \
-                (point.x >= secondNode.coords.x and point.x <= firstNode.coords.x):
+                    (point.x >= secondNode.coords.x and point.x <= firstNode.coords.x):
                 return True
             return False
         raise NotImplementedError
-
 
 
 class MapNavigationFuncs():
@@ -188,6 +129,7 @@ class MapNavigationFuncs():
         a = point.x - target.x
         b = point.y - target.y
         c = sqrt(pow(a, 2) + pow(b, 2))
+        # c = pow(a, 2) + pow(b, 2)
         return c
 
     @staticmethod
