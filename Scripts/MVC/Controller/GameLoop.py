@@ -41,11 +41,11 @@ class GameInfo():
         self.hp = GameInfo.MAX_HP_AMOUNT
 
     def __initGhosts(self):
-        # ghostTypes = [GHOST_TYPE.RIKKO]
-        ghostTypes = [GHOST_TYPE.RIKKO,
-                      GHOST_TYPE.PINKY,
-                      GHOST_TYPE.GREENKY,
-                      GHOST_TYPE.CLYNE]
+        ghostTypes = [GHOST_TYPE.RIKKO]
+        # ghostTypes = [GHOST_TYPE.RIKKO,
+        #               GHOST_TYPE.PINKY,
+        #               GHOST_TYPE.GREENKY,
+        #               GHOST_TYPE.CLYNE]
         for type in ghostTypes:
             self.ghosts.append(Ghost(self.map.ghostsStartPosition,
                                      self.map.ghostsStartDirection,
@@ -94,15 +94,15 @@ class CoinsManager():
 
 
 
-class EntityMotionInfo():
-    def __init__(self, entity):
-        self.entity = entity
-
-        self.currentPlayerStartPoint = None
-        self.currentPlayerTarget = None
-        self.currentPlayerPath = None
-        self.currentPlayerDirection = None
-        self.currentPlayerDirectionIndex = None
+# class EntityMotionInfo():
+#     def __init__(self, entity):
+#         self.entity = entity
+#
+#         self.currentPlayerStartPoint = None
+#         self.currentPlayerTarget = None
+#         self.currentPlayerPath = None
+#         self.currentPlayerDirection = None
+#         self.currentPlayerDirectionIndex = None
 
 
 class MotionManager():
