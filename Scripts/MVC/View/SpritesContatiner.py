@@ -14,21 +14,28 @@ class SpritesContainer():
                                          gameLooper.info.player.startCoords,
                                          MAIN_DIRECTORY + '\Sprites\Pacman.png')
         self.ghostsSprites = dict()
-        self.initGhosts()
+        self.__initGhosts()
+        self.coinsSprites = dict()
+        # self.__initCoins()
 
-
-    def initGhosts(self):
+    def __initGhosts(self):
         for ghost in self.gameLooper.info.ghosts:
             self.ghostsSprites[ghost] = SpriteEntity(SPRITE_TYPES.GHOST,
                                                      self.spritesGroup,
-                                                     ghost.coordsWorld,
+                                                     ghost.coords,
                                                      SpritesContainer.getGhostSpritiePath(ghost.ghostType))
+
+    def __initCoins(self):
+        for coin in self.gameLooper.info.coinsContainer.coinsDict.values():
+            self.coinsSprites[coin.coords.getTuple()] = SpriteEntity(SPRITE_TYPES.COIN,
+                                                                     self.spritesGroup,
+                                                                     coin.coords,
+                                                                     MAIN_DIRECTORY + '\Sprites\PacmanCoin.png')
 
     def updateSpritesPositions(self):
         self.playerSprite.rect.center = self.gameLooper.info.player.coordsWorld.getTuple()
         for ghost in self.ghostsSprites.keys():
             self.ghostsSprites[ghost].rect.center = ghost.coordsWorld.getTuple()
-
 
     @staticmethod
     def getGhostSpritiePath(type: int):

@@ -12,3 +12,10 @@ class CoinsContainer():
         coinsPositionsList = map.roadsPositionsList + list(map.nodesDictionary.keys())
         for position in coinsPositionsList:
             self.coinsDict[position] = Coin(position)
+
+    def tryDeleteCoin(self, coords: Coords):
+        if self.coinsDict.keys().__contains__(coords.getTuple()):
+            self.coinsDict.pop(coords.getTuple())
+            return True
+        return False
+

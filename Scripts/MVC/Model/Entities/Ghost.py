@@ -6,13 +6,13 @@ class Ghost(object):
     SPEED = 1
 
     def __init__(self,
-                 startPosition: Coords,
+                 startCoords: Coords,
                  startDirection: str,
                  type: int):
-        self.startCoords = startPosition
+        self.startCoords = startCoords
         self.startDirection = startDirection
 
-        self.coords = startPosition.__copy__()
+        self.coords = startCoords.__copy__()
         self.coordsWorld = CoordsConverter.gridToWorld(self.coords)
 
         self.direction = startDirection
@@ -21,3 +21,8 @@ class Ghost(object):
     def move(self):
         self.coordsWorld.offsetTo(self.direction, Ghost.SPEED)
         self.coords = CoordsConverter.worldToGrid(self.coordsWorld)
+
+    def respawn(self):
+        self.coords = self.startCoords.__copy__()
+        self.coordsWorld = CoordsConverter.gridToWorld(self.coords)
+        self.direction = self.startDirection

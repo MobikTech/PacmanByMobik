@@ -1,9 +1,10 @@
 import pygame
 from Scripts.MVC.Controller.Common.Constants import *
 from Scripts.MVC.Controller.GameLoop import GameLoop
+from Scripts.MVC.Model.Navigation.Coords import Coords
 from Scripts.MVC.View.PathDrawer import PathDrawer
-from Scripts.MVC.View.SpriteEntity import SpriteEntity
 from Scripts.MVC.View.SpritesContatiner import SpritesContainer
+from Scripts.MVC.View.UIContatiner import UIContainer
 
 
 class GameController(object):
@@ -13,19 +14,21 @@ class GameController(object):
         pygame.init()
         self.screen = pygame.display.set_mode(SCREEN.SCREEN_SIZE)
         self.clock = pygame.time.Clock()
-        self.gameOver = False
         self.gameLooper = GameLoop()
         self.layer1 = self.gameLooper.info.background
 
         self.spritesContainer = SpritesContainer(self.gameLooper)
+        self.uiContainer = UIContainer()
+
 
     def start(self):
         self.gameLooper.start()
         self.gameLooper.events.playerPathCalculated = self.__drawPath
         self.gameLooper.events.ghostsPathCalculated = self.__drawPath
+        # self.gameLooper.events.coinCollected = self.__deleteSpriteCoin
 
     def update(self):
-        if self.gameOver == True:
+        if self.gameLooper.info.hp < 1:
             self.__endGame()
         else:
             self.clock.tick(FPS)
@@ -34,9 +37,10 @@ class GameController(object):
 
     def __render(self):
         self.__clearScreen()
+        self.uiContainer.update(self.gameLooper.info.hp, self.gameLooper.info.score, self.layer1)
+        self.gameLooper.update()
         self.spritesContainer.updateSpritesPositions()
         self.spritesContainer.spritesGroup.draw(self.layer1)
-        self.gameLooper.update()
         self.screen.blit(self.layer1, SCREEN.SCREEN_START_POINT)
 
     def __eventHandler(self):
@@ -46,6 +50,7 @@ class GameController(object):
 
     def __endGame(self):
         self.__clearScreen()
+        self.uiContainer.endGameUpdate(self.gameLooper.info.score, self.layer1)
         self.screen.blit(self.layer1, SCREEN.SCREEN_START_POINT)
 
     def __clearScreen(self):
@@ -60,7 +65,9 @@ class GameController(object):
                             color,
                             self.layer1)
 
-
+    def __deleteSpriteCoin(self, coords: Coords):
+        self.spritesContainer.spritesGroup.remove(self.spritesContainer.coinsSprites[coords.getTuple()].sprite)
+        self.spritesContainer.coinsSprites.pop(coords.getTuple())
 
 gameController = GameController()
 gameController.start()

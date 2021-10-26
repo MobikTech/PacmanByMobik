@@ -17,9 +17,15 @@ class Events():
     def __init__(self):
         self.playerPathCalculated = None
         self.ghostsPathCalculated = None
+        self.coinCollected = None
 
 
 class GameInfo():
+    PLAYER_MOVEMENT_ALGORITHM = SEARCH_ALGORITHMES.ASTAR
+    GHOSTS_MOVEMENT_ALGORITHM = SEARCH_ALGORITHMES.BFS
+    MAX_HP_AMOUNT = 3
+    SCORE_STEP_COUNTER = 10
+
     def __init__(self):
         self.__mazeGenerator = MazeGenerator()
         self.map = Map(self.__mazeGenerator)
@@ -30,6 +36,9 @@ class GameInfo():
         self.__initGhosts()
         self.coinsContainer = CoinsContainer(self.map)
         self.background = self.__mazeGenerator.backgroundImage
+
+        self.score = 0
+        self.hp = GameInfo.MAX_HP_AMOUNT
 
     def __initGhosts(self):
         # ghostTypes = [GHOST_TYPE.RIKKO]
@@ -53,6 +62,36 @@ class GameLoop():
 
     def update(self):
         MotionManager.tryMoveEntities(self.info, self.events)
+        CoinsManager.tryDeleteCoin(self.info, self.events.coinCollected)
+        self.__collisionHandler()
+
+    def __collisionHandler(self):
+        if self.__tryCollideWithGhosts():
+            self.info.hp -= 1
+            self.__respawnAll()
+
+    def __tryCollideWithGhosts(self):
+        for ghost in self.info.ghosts:
+            if ghost.coords == self.info.player.coords:
+                return True
+        return False
+
+    def __respawnAll(self):
+        self.info.player.respawn()
+        for ghost in self.info.ghosts:
+            ghost.respawn()
+        MotionManager.resetPlayerPathProps()
+
+
+class CoinsManager():
+
+    @staticmethod
+    def tryDeleteCoin(gameInfo: GameInfo, event):
+        if gameInfo.coinsContainer.tryDeleteCoin(gameInfo.player.coords) == True:
+            gameInfo.score += GameInfo.SCORE_STEP_COUNTER
+            if event != None:
+                event(gameInfo.player.coords)
+
 
 
 class EntityMotionInfo():
@@ -74,54 +113,19 @@ class MotionManager():
     currentPlayerDirectionIndex = None
 
     @staticmethod
+    def resetPlayerPathProps():
+        MotionManager.currentPlayerStartPoint = None
+        MotionManager.currentPlayerTarget = None
+        MotionManager.currentPlayerPath = None
+        MotionManager.currentPlayerDirection = None
+        MotionManager.currentPlayerDirectionIndex = None
+
+    @staticmethod
     def tryMoveEntities(gameInfo: GameInfo, events: Events):
 
         MotionManager.__tryMovePlayer(gameInfo, events.playerPathCalculated)
         MotionManager.__tryMoveGhosts(gameInfo, events.ghostsPathCalculated)
 
-    # @staticmethod
-    # def __tryMoveEntity(gameInfo: GameInfo,
-    #                     events: Events,
-    #                     entity,
-    #                     ):
-    #     if MotionManager.currentPlayerPath == None:
-    #         MotionManager.__recalculatePlayerPath(gameInfo)
-    #
-    #     elif gameInfo.player.coords == MotionManager.currentPlayerTarget:
-    #         MotionManager.__recalculatePlayerPath(gameInfo)
-    #
-    #     if CoordsBehaviour.inCellCenter(gameInfo.player.coordsWorld):
-    #         MotionManager.__tryChangeDirection(gameInfo)
-    #
-    #     gameInfo.player.move()
-    #
-    #     if event != None:
-    #         event(MotionManager.currentPlayerPath,
-    #               MotionManager.currentPlayerStartPoint,
-    #               MotionManager.currentPlayerTarget,
-    #               COLORS.WHITE)
-    #
-    #
-    #     @staticmethod
-    #     def __tryChangeDirection(gameInfo: GameInfo):
-    #         currentCellType = gameInfo.map.grid[gameInfo.player.coords.getTuple()]
-    #         if currentCellType == CELL_TYPE.CROSSROAD:
-    #             MotionManager.currentPlayerDirectionIndex += 1
-    #             MotionManager.currentPlayerDirection = \
-    #                 gameInfo.player.direction = \
-    #                 MotionManager.currentPlayerPath[MotionManager.currentPlayerDirectionIndex]
-    #
-    #     @staticmethod
-    #     def __recalculatePlayerPath(gameInfo: GameInfo):
-    #         MotionManager.currentPlayerDirectionIndex = 0
-    #         MotionManager.currentPlayerStartPoint = gameInfo.player.coords
-    #         # MotionManager.currentPlayerTarget = Coords((22, 14))
-    #         MotionManager.currentPlayerTarget = Coords(random.choice(gameInfo.map.roadsPositionsList))
-    #         MotionManager.currentPlayerPath = Algorithmes.getPathToTarget(SEARCH_ALGORITHMES.ASTAR,
-    #                                                                       MotionManager.currentPlayerStartPoint,
-    #                                                                       MotionManager.currentPlayerTarget,
-    #                                                                       gameInfo.map)
-    #         MotionManager.currentPlayerDirection = gameInfo.player.direction = MotionManager.currentPlayerPath[0]
 
     # region PlayerMovement
     @staticmethod
@@ -159,7 +163,7 @@ class MotionManager():
         MotionManager.currentPlayerStartPoint = gameInfo.player.coords
         # MotionManager.currentPlayerTarget = Coords((22, 14))
         MotionManager.currentPlayerTarget = Coords(random.choice(gameInfo.map.roadsPositionsList))
-        MotionManager.currentPlayerPath = Algorithmes.getPathToTarget(SEARCH_ALGORITHMES.ASTAR,
+        MotionManager.currentPlayerPath = Algorithmes.getPathToTarget(GameInfo.PLAYER_MOVEMENT_ALGORITHM,
                                                                       MotionManager.currentPlayerStartPoint,
                                                                       MotionManager.currentPlayerTarget,
                                                                       gameInfo.map)
@@ -184,7 +188,7 @@ class MotionManager():
             ghost.move()
             return
 
-        ghostPath = Algorithmes.getPathToTarget(SEARCH_ALGORITHMES.BFS,
+        ghostPath = Algorithmes.getPathToTarget(GameInfo.GHOSTS_MOVEMENT_ALGORITHM,
                                                 ghost.coords,
                                                 gameInfo.player.coords,
                                                 gameInfo.map)

@@ -24,8 +24,8 @@ class MazeGenerator():
 
         self.backgroundImage = None
 
-        self.__setGridFromFile('pacman_map_1_31x31.png')
-        # self.__setGridRandomly()
+        # self.__setGridFromFile('pacman_map_1_31x31.png')
+        self.__setGridRandomly()
         self.__scanGrid()
         self.__defineNodesNeighbours()
         self.__setBackground()
