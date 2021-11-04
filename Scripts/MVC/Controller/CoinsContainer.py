@@ -19,3 +19,5 @@ class CoinsContainer():
             return True
         return False
 
+    def getCoinsCount(self):
+        return len(self.coinsDict.keys())

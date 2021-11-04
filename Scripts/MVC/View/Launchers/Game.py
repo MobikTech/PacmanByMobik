@@ -1,4 +1,5 @@
 import pygame
+
 from Scripts.MVC.Controller.Common.Constants import *
 from Scripts.MVC.Controller.GameLoop import GameLoop
 from Scripts.MVC.Model.Navigation.Coords import Coords
@@ -25,7 +26,9 @@ class GameController(object):
         self.gameLooper.start()
         self.gameLooper.events.playerPathCalculated = self.__drawPath
         self.gameLooper.events.ghostsPathCalculated = self.__drawPath
-        # self.gameLooper.events.coinCollected = self.__deleteSpriteCoin
+        self.gameLooper.events.newGhostAdded = self.__initNewGhost
+        # to hide coins
+        self.gameLooper.events.coinCollected = self.__deleteSpriteCoin
 
     def update(self):
         if self.gameLooper.info.hp < 1:
@@ -69,8 +72,16 @@ class GameController(object):
         self.spritesContainer.spritesGroup.remove(self.spritesContainer.coinsSprites[coords.getTuple()].sprite)
         self.spritesContainer.coinsSprites.pop(coords.getTuple())
 
+    def __initNewGhost(self, ghost):
+        self.spritesContainer.initGhost(ghost)
+
+
+
+#region GameLauncher
+
 gameController = GameController()
 gameController.start()
+
 running = True
 while running:
     for event in pygame.event.get():
@@ -81,3 +92,7 @@ while running:
             running = False
     gameController.update()
     pygame.display.flip()
+
+#endregion
+
+

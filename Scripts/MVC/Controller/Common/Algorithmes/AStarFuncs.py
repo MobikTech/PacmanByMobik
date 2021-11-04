@@ -1,4 +1,4 @@
-from Scripts.MVC.Controller.Common.Algorithmes import MapNavigationFuncs, NodesNavigationFuncs
+from Scripts.MVC.Controller.Common.Algorithmes.Algorithmes import MapNavigationFuncs, NodesNavigationFuncs
 from Scripts.MVC.Model.Navigation.Nodes import Node
 
 

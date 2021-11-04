@@ -16,7 +16,8 @@ class SpritesContainer():
         self.ghostsSprites = dict()
         self.__initGhosts()
         self.coinsSprites = dict()
-        # self.__initCoins()
+        # to hide coins
+        self.__initCoins()
 
     def __initGhosts(self):
         for ghost in self.gameLooper.info.ghosts:
@@ -24,6 +25,12 @@ class SpritesContainer():
                                                      self.spritesGroup,
                                                      ghost.coords,
                                                      SpritesContainer.getGhostSpritiePath(ghost.ghostType))
+
+    def initGhost(self, newGhost):
+        self.ghostsSprites[newGhost] = SpriteEntity(SPRITE_TYPES.GHOST,
+                                                    self.spritesGroup,
+                                                    newGhost.coords,
+                                                    SpritesContainer.getGhostSpritiePath(newGhost.ghostType))
 
     def __initCoins(self):
         for coin in self.gameLooper.info.coinsContainer.coinsDict.values():

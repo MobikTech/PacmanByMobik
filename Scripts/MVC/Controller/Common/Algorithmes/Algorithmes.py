@@ -1,4 +1,4 @@
-from math import sqrt, pow
+from math import sqrt, pow, fabs
 
 from Scripts.MVC.Model.Navigation.Coords import Coords
 from Scripts.MVC.Model.Navigation.Map import Map
@@ -30,8 +30,18 @@ class Algorithmes():
     @staticmethod
     def __aStar(startNode: Node,
                 targetNode: Node):
-        from Scripts.MVC.Controller.Common.AStarFuncs import AStarFuncs
+        from Scripts.MVC.Controller.Common.Algorithmes.AStarFuncs import AStarFuncs
         return AStarFuncs.aStar(startNode, targetNode)
+
+    @staticmethod
+    def minimax(startNode: Node,
+                gameInfo):
+        DEPTH = 3
+
+        from Scripts.MVC.Controller.Common.Algorithmes.MinimaxFuncs import ExtraInfo, MinimaxFuncs
+        result = MinimaxFuncs.minimax(startNode, DEPTH, True, -1000, 1000,
+                                      ExtraInfo(gameInfo.coinsContainer.coinsDict, gameInfo.ghosts), None)
+        return result
 
     @staticmethod
     def getPathToTarget(algorithmType: int,
@@ -104,6 +114,12 @@ class NodesNavigationFuncs():
             rayLength += 1
 
     @staticmethod
+    def getOffsetFromNearestNode(node: Node, coords: Coords):
+        direction = MapNavigationFuncs.getDirectionToNeighbour(node.coords, coords)
+        offset = NodesNavigationFuncs.getLengthBetweenNeighbors(node.coords, coords)
+        return direction, offset
+
+    @staticmethod
     def isBetweenNeighborNodes(firstNode: Node, secondNode: Node, point: Coords):
         if firstNode.coords.x == secondNode.coords.x:
             if point.x != firstNode.coords.x:
@@ -120,6 +136,12 @@ class NodesNavigationFuncs():
                 return True
             return False
         raise NotImplementedError
+
+    @staticmethod
+    def getLengthBetweenNeighbors(firstCoords: Coords, secondCoords: Coords):
+        x_offset = fabs(firstCoords.x - secondCoords.x)
+        y_offset = fabs(firstCoords.y - secondCoords.y)
+        return max(x_offset, y_offset)
 
 
 class MapNavigationFuncs():

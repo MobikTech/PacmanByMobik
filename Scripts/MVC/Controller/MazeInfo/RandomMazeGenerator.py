@@ -103,10 +103,33 @@ class GenerationFuncs():
     def __buildRandomCrossing(coords: Coords, grid):
         possibleDirections = GenerationFuncs.getPossibleDirections(coords)
         random.shuffle(possibleDirections)
+        neighborCount = 0
         for direction in possibleDirections:
             if GenerationFuncs.__canMakeRoad(coords, direction, grid):
+                neighborCount += 1
                 newPoint = GenerationFuncs.__connectNewRoad(coords, direction, grid)
                 GenerationFuncs.__buildRandomCrossing(newPoint, grid)
+        # print(neighborCount)
+        if GenerationFuncs.getConnectedRoadsCount(coords, grid) < 2:
+            for direction in possibleDirections:
+                if grid[coords.getOffsetted(direction, 1).getTuple()] == CELL_TYPE.WALL:
+                    GenerationFuncs.__connectNewRoad(coords, direction, grid)
+                    return
+
+        # if neighborCount < 1:
+        #     for direction in possibleDirections:
+        #         if grid[coords.getOffsetted(direction, 1).getTuple()] == CELL_TYPE.WALL:
+        #             GenerationFuncs.__connectNewRoad(coords, direction, grid)
+        #             return
+
+    @staticmethod
+    def getConnectedRoadsCount(coords: Coords, grid):
+        connectionCount = 0
+        possibleDirections = GenerationFuncs.getPossibleDirections(coords)
+        for direction in possibleDirections:
+            if grid[coords.getOffsetted(direction, 1).getTuple()] == CELL_TYPE.ROAD:
+                connectionCount += 1
+        return connectionCount
 
     @staticmethod
     def getPossibleDirections(coords: Coords):
