@@ -18,7 +18,11 @@ class GameState():
         self.__coinsDict = coinsDict
         self.playerNode = playerNode
         self.ghostsPaths: dict[Coords, PathToGhost] = self.__initGhostPaths(playerNode, self.__getGhostsCoordsCopy(ghostsCoords))
+        self.ghostsPaths: list[(Coords, PathToGhost)] = self.__initGhostPaths(playerNode, self.__getGhostsCoordsCopy(ghostsCoords))
         self.evaluation = evaluation
+
+    def __getPathToGhost(self, ghostCoords):
+
 
     def __getGhostsCoordsCopy(self, ghostsCoords: list):
         newGhostsCoords = list()
@@ -110,6 +114,7 @@ class GameState():
                                                              newPlayerNode,
                                                              gameState.__coinsDict,
                                                              gameState.ghostsPaths.keys())
+        return gameState
 
 
 
@@ -117,12 +122,6 @@ class MinimaxFuncs():
     COIN_COST = 1
     GHOST_COST = -10
 
-    def __init__(self, ghosts):
-        self.ghosts = ghosts
-
-    #todo remove
-    def __getGameState(self, gameInfo):
-        return GameState(gameInfo.player, gameInfo.ghosts, gameInfo.map, gameInfo.coinsContainer.coinsDict)
 
     @staticmethod
     def evaluateNeighbor(startNode, nextNode,
@@ -203,9 +202,9 @@ class MinimaxFuncs():
 
 
     @staticmethod
-    def minimax(depth, alpha, beta, prestartNode, gameState: GameState):
+    def minimax(depth, prestartNode, gameState: GameState):
         # should return best direction
-        # returned (direction, value)
+        # returned (bestDirection, totalValue)
         INFINITY = 10000
 
         if depth == 0:
@@ -213,37 +212,32 @@ class MinimaxFuncs():
 
         bestValue = -INFINITY
         bestDirection = None
-        totalValue = 0
-        direction = None
+        totalNeighborValue = 0
 
-        leavesEvaluation = 0
 
         for nodeDirection in NodesNavigationFuncs.getNodeDirections(gameState.playerNode):
             neighborInfo = gameState.playerNode.neighborsNodeInfo[nodeDirection]
 
             newPlayerNode = neighborInfo.node
-            newGameState = gameState.getOffsettedGameState(newPlayerNode)
-
             if newPlayerNode == prestartNode:
                 continue
+            newGameState = gameState.getOffsettedGameState(newPlayerNode)
 
-            leavesEvaluation
 
-            currentValue = MinimaxFuncs.evaluateNeighbor(startNode, neighborInfo.node, extraInfo.coinsDict,
-                                                         extraInfo.ghosts)
-            (direction, value) = MinimaxFuncs.minimax(neighborInfo.node, depth - 1, False, alpha, beta, extraInfo,
-                                                    startNode)
-            currentValue += value
+            neighborEvaluation = newGameState.evaluation
+            # neighborsEvaluation += neighborEvaluation
 
-            if currentValue >= bestValue:
-                bestValue = currentValue
+            (direction, value) = MinimaxFuncs.minimax(depth - 1, gameState.playerNode, newGameState)
+            totalNeighborValue += value
+            totalNeighborValue += neighborEvaluation * depth
+
+
+            if totalNeighborValue >= bestValue:
+                # bestValue = totalNeighborValue
                 bestDirection = nodeDirection
 
-            alpha = max(alpha, bestValue)
-            if beta <= alpha:
-                break
 
-        return bestDirection, bestValue
+        return bestDirection, totalNeighborValue
 
 
 

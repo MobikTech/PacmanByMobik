@@ -184,8 +184,7 @@ class MotionManager():
         player = gameInfo.player
         if CoordsBehaviour.inCellCenter(player.coordsWorld) and \
                 gameInfo.map.grid[player.coords.getTuple()] == CELL_TYPE.CROSSROAD:
-            direction, value = MotionManager.PLAYER_ALGORITHM(gameInfo.map.nodesDictionary[player.coords.getTuple()],
-                                                              gameInfo)
+            direction, value = MotionManager.PLAYER_ALGORITHM(gameInfo)
             player.direction = direction
             # print(value)
         player.move()

@@ -34,13 +34,18 @@ class Algorithmes():
         return AStarFuncs.aStar(startNode, targetNode)
 
     @staticmethod
-    def minimax(startNode: Node,
-                gameInfo):
+    def minimax(gameInfo):
         DEPTH = 3
+        from Scripts.MVC.Controller.Common.Algorithmes.MinimaxFuncs import MinimaxFuncs, GameState
 
-        from Scripts.MVC.Controller.Common.Algorithmes.MinimaxFuncs import ExtraInfo, MinimaxFuncs
-        result = MinimaxFuncs.minimax(startNode, DEPTH, True, -1000, 1000,
-                                      ExtraInfo(gameInfo.coinsContainer.coinsDict, gameInfo.ghosts), None)
+
+        startNode = gameInfo.map.nodesDictionary[gameInfo.player.coords.getTuple()]
+        ghostsCoords = list()
+        for ghost in gameInfo.ghosts:
+            ghostsCoords.append(ghost.coords)
+
+        result = MinimaxFuncs.minimax(DEPTH, None,
+                                      GameState(startNode, ghostsCoords, gameInfo.map, gameInfo.coinsContainer.coinsDict, 0))
         return result
 
     @staticmethod

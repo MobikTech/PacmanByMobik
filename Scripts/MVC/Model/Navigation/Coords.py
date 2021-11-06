@@ -56,3 +56,6 @@ class Coords():
     # @staticmethod
     # def inMap(coords: Coords):
     #     pass
+
+    def __hash__(self):
+        return self.getTuple()
