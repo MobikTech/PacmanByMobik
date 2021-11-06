@@ -120,6 +120,12 @@ class NodesNavigationFuncs():
         return direction, offset
 
     @staticmethod
+    def getDirectionAndLengthBetweenNodes(fromNode: Node, toNode: Node):
+        direction = MapNavigationFuncs.getDirectionToNeighbour(fromNode.coords, toNode.coords)
+        offset = NodesNavigationFuncs.getLengthBetweenNeighbors(fromNode.coords, toNode.coords)
+        return direction, offset
+
+    @staticmethod
     def isBetweenNeighborNodes(firstNode: Node, secondNode: Node, point: Coords):
         if firstNode.coords.x == secondNode.coords.x:
             if point.x != firstNode.coords.x:
