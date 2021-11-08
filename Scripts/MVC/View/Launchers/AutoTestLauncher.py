@@ -1,9 +1,9 @@
 from Scripts.MVC.Controller.Common.Algorithmes.Algorithmes import Algorithmes
 from Scripts.MVC.Controller.GameLoop import MotionManager, GameLoop
 from Scripts.MVC.View.Timer import Timer
+import csv
 
-
-LAUNCHES_COUNT = 20
+LAUNCHES_COUNT = 3
 
 class TestController():
     WIN_MARKER = 'win'
@@ -29,7 +29,7 @@ class TestController():
             self.__endGame(TestController.LOSE_MARKER)
 
     def __endGame(self, endType: str):
-        timeStr = str(self.timer.start())
+        timeStr = str(self.timer.stop())
         scoreStr = str(self.gameLooper.info.score)
         algStr = TestController.getAlgStr(MotionManager.PLAYER_ALGORITHM)
         coinsLeft = self.gameLooper.info.coinsContainer.getCoinsCount().__str__()
@@ -51,7 +51,6 @@ class Result():
         self.time = time
         self.score = score
         self.algorithm = algorithm
-
         self.coinsLeft = coinsLeft
 
     def __str__(self):
@@ -62,11 +61,14 @@ class Result():
         print('Algorithm: {0}'.format(self.algorithm))
         print('CoinsLeft: {0}'.format(self.coinsLeft))
         print('---------------')
-        # print()
+
+    def getResultList(self, index):
+        return [index, self.status, self.score, self.time, self.algorithm]
 
 class ResultContainer():
     def __init__(self):
         self.results = list()
+        self.headers = ['Index', 'Status', 'Score', 'Time', 'Algorithm']
 
     def add(self, result: Result):
         self.results.append(result)
@@ -82,6 +84,15 @@ class ResultContainer():
 
         print('WinRate: {0}%'.format(int((winCount / (winCount + loseCount)) * 100)))
 
+    def crateCSVFile(self):
+        with open('GameStatistic.csv', 'w', newline='') as file:
+            writer = csv.writer(file)
+            writer.writerow(self.headers)
+            currentIndex = 0
+            for result in self.results:
+                writer.writerow(result.getResultList(currentIndex))
+                currentIndex += 1
+
 #region TestLauncher
 
 resultContainer = ResultContainer()
@@ -93,5 +104,6 @@ for counter in range(LAUNCHES_COUNT):
     print(testController.result.__str__())
     resultContainer.add(testController.result)
 resultContainer.showStatisticInfo()
+resultContainer.crateCSVFile()
 
 #endregion

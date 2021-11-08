@@ -35,7 +35,7 @@ class Algorithmes():
 
     @staticmethod
     def minimax(gameInfo):
-        DEPTH = 3
+        DEPTH = 5
         from Scripts.MVC.Controller.Common.Algorithmes.MinimaxFuncs import MinimaxFuncs, GameState
 
 
@@ -46,6 +46,12 @@ class Algorithmes():
 
         result = MinimaxFuncs.minimax(DEPTH, None,
                                       GameState(startNode, ghostsCoords, gameInfo.map, gameInfo.coinsContainer.coinsDict, 0))
+        # testInfo = result[2]
+        # print('-----------')
+        # for possibleValue in testInfo.possibleValues:
+        #     print(possibleValue)
+        # print('chosen value - {0}'.format(testInfo.chosenValue))
+        # print('chosen direction - {0}'.format(testInfo.chosenDirection))
         return result
 
     @staticmethod
@@ -98,22 +104,29 @@ class NodesNavigationFuncs():
 
     @staticmethod
     def findNearestNodeTo(coords: Coords, map: Map):
+        if map.grid[coords.getTuple()] == CELL_TYPE.WALL:
+            raise Exception('Incorrect coords {0}, it is a wall'.format(coords.__str__()))
+
         nodes = map.nodesDictionary
         # if inMapRect(CENTER_GRID_SPACE, gridPosition) == False:
         #     raise Exception('position over the grid of playable map')
         if map.grid[coords.getTuple()] == CELL_TYPE.CROSSROAD:
             return nodes[coords.getTuple()]
 
-        rayLength = 1
         directionsList = list()
         for direction in [DIRECTIONS.UP, DIRECTIONS.DOWN, DIRECTIONS.RIGHT, DIRECTIONS.LEFT]:
-            newCoords = coords.getOffsetted(direction, rayLength)
+            newCoords = coords.getOffsetted(direction, 1)
             if map.grid[newCoords.getTuple()] != CELL_TYPE.WALL:
                 directionsList.append(direction)
 
+        print('new node')
+        print(directionsList)
+        rayLength = 1
         while True:
+            print('while')
             for direction in directionsList:
                 newCoords = coords.getOffsetted(direction, rayLength)
+                print(newCoords.getTuple())
                 if map.grid[newCoords.getTuple()] == CELL_TYPE.CROSSROAD:
                     return nodes[newCoords.getTuple()]
             rayLength += 1
@@ -152,7 +165,7 @@ class NodesNavigationFuncs():
     def getLengthBetweenNeighbors(firstCoords: Coords, secondCoords: Coords):
         x_offset = fabs(firstCoords.x - secondCoords.x)
         y_offset = fabs(firstCoords.y - secondCoords.y)
-        return max(x_offset, y_offset)
+        return int(max(x_offset, y_offset))
 
 
 class MapNavigationFuncs():

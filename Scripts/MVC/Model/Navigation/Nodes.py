@@ -17,6 +17,9 @@ class Node(object):
                                                     self.neighborsNodeInfo[DIRECTIONS.DOWN],
                                                     self.neighborsNodeInfo[DIRECTIONS.LEFT])
 
+    def __copy__(self):
+        return Node(self.coords.__copy__())
+
 
 class NodeInfo():
     def __init__(self, node: Node, distance: int):
