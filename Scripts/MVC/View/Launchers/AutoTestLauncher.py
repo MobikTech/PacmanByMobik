@@ -15,11 +15,13 @@ class TestController():
         self.result = None
 
         self.timer = Timer()
+        self.startCoinsCount = self.gameLooper.info.coinsContainer.getCoinsCount()
+        self.startCoinsCount = self.gameLooper.info.coinsContainer.getCoinsCount()
 
     def start(self):
         self.gameLooper.start()
         self.timer.start()
-        print('Start Coins num: {0}'.format(self.gameLooper.info.coinsContainer.getCoinsCount()))
+        # print('Start Coins num: {0}'.format(self.gameLooper.info.coinsContainer.getCoinsCount()))
 
     def update(self):
         self.gameLooper.update()
@@ -33,7 +35,9 @@ class TestController():
         scoreStr = str(self.gameLooper.info.score)
         algStr = TestController.getAlgStr(MotionManager.PLAYER_ALGORITHM)
         coinsLeft = self.gameLooper.info.coinsContainer.getCoinsCount().__str__()
-        self.result = Result(endType, timeStr, scoreStr, algStr, coinsLeft)
+        startCoinsCount = self.startCoinsCount
+        crossroadsCount = len(self.gameLooper.info.map.nodesDictionary.keys())
+        self.result = Result(endType, timeStr, scoreStr, algStr, coinsLeft, startCoinsCount, crossroadsCount)
         self.isRunning = False
 
     @staticmethod
@@ -46,15 +50,19 @@ class TestController():
 
 
 class Result():
-    def __init__(self, status, time, score, algorithm, coinsLeft):
+    def __init__(self, status, time, score, algorithm, coinsLeft, startCoinsCount, crossroadsCount):
         self.status = status
         self.time = time
         self.score = score
         self.algorithm = algorithm
         self.coinsLeft = coinsLeft
+        self.__startCoinsCount = startCoinsCount
+        self.crossroadsCount = crossroadsCount
+
 
     def __str__(self):
         print('---------------')
+        print('Start Coins num: {0}'.format(self.__startCoinsCount))
         print('Game result: {0}'.format(self.status))
         print('Time: {0}'.format(self.time))
         print('Score: {0}'.format(self.score))
@@ -62,13 +70,13 @@ class Result():
         print('CoinsLeft: {0}'.format(self.coinsLeft))
         print('---------------')
 
-    def getResultList(self, index):
-        return [index, self.status, self.score, self.time, self.algorithm]
+    def getResultList(self):
+        return [self.status, self.score, self.time, self.algorithm, self.crossroadsCount]
 
 class ResultContainer():
     def __init__(self):
         self.results = list()
-        self.headers = ['Index', 'Status', 'Score', 'Time', 'Algorithm']
+        self.headers = ['Status', 'Score', 'Time', 'Algorithm', 'CrossroadsCount']
 
     def add(self, result: Result):
         self.results.append(result)
@@ -88,10 +96,10 @@ class ResultContainer():
         with open('GameStatistic.csv', 'w', newline='') as file:
             writer = csv.writer(file)
             writer.writerow(self.headers)
-            currentIndex = 0
+            # currentIndex = 0
             for result in self.results:
-                writer.writerow(result.getResultList(currentIndex))
-                currentIndex += 1
+                writer.writerow(result.getResultList())
+                # currentIndex += 1
 
 #region TestLauncher
 

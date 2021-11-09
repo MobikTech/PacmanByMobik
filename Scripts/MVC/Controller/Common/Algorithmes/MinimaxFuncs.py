@@ -18,7 +18,6 @@ class GameState():
         self.__coinsDict = coinsDict
         self.__ghostsCoords = ghostsCoords
         self.playerNode = playerNode
-        # self.ghostsPaths: dict[Coords, PathToGhost] = self.__initGhostPaths(playerNode, self.__getGhostsCoordsCopy(ghostsCoords))
         self.ghostsPaths: list[PathToGhost] = self.__initGhostPaths(playerNode, self.__getGhostsCoordsCopy(ghostsCoords))
         self.evaluation = evaluation
 
@@ -39,7 +38,7 @@ class GameState():
     def __defineGhostsNearestNode(self, ghostsCoords):
         unfoundedGhostsNearestNodes = dict()
         for ghostCoords in ghostsCoords:
-            unfoundedGhostsNearestNodes[ghostCoords] = NodesNavigationFuncs.findNearestNodeTo(ghostCoords, self.__map)
+            unfoundedGhostsNearestNodes[ghostCoords.getTuple()] = NodesNavigationFuncs.findNearestNodeTo(ghostCoords, self.__map)
         return unfoundedGhostsNearestNodes
 
     def __bfsForGhosts(self, startNode, unfoundedGhostsNearestNodes):
@@ -54,11 +53,12 @@ class GameState():
             if len(unfoundedGhostsNearestNodes.keys()) < 1:
                 return ghostsPaths
 
-            for ghostCoords in list(unfoundedGhostsNearestNodes.keys()):
-                if node == unfoundedGhostsNearestNodes[ghostCoords]:
+            for ghostPosition in list(unfoundedGhostsNearestNodes.keys()):
+                ghostCoords = Coords(ghostPosition)
+                if node == unfoundedGhostsNearestNodes[ghostPosition]:
                     direction, offset = NodesNavigationFuncs.getOffsetFromNearestNode(path[-1], ghostCoords)
                     ghostsPaths.append(PathToGhost(ghostCoords, path, offset, direction))
-                    unfoundedGhostsNearestNodes.pop(ghostCoords)
+                    unfoundedGhostsNearestNodes.pop(ghostPosition)
 
             # for ghostCoords in list(unfoundedGhostsNearestNodes.keys()):
             #     # ghostCoords = ghostCoords.__copy__()
@@ -114,6 +114,7 @@ class GameState():
                         ghostPath.extraDirection = None
 
                 if self.__map.grid[ghostCoords.getTuple()] == CELL_TYPE.WALL:
+                    return
                     raise Exception('Incorrect coords {0}, it is a wall'.format(ghostCoords.__str__()))
 
 
@@ -166,10 +167,13 @@ class GameState():
         gameStateCopy = gameState.__copy__()
         traveledDistance = NodesNavigationFuncs.getLengthBetweenNeighbors(self.playerNode.coords, newPlayerNode.coords)
         gameState.__moveGhostsByPath(traveledDistance)
+
+        gameStateCopy.__moveGhostsByPath(traveledDistance)
+
         gameState.evaluation = MinimaxFuncs.evaluateNeighbor(self.playerNode,
                                                              newPlayerNode,
                                                              gameState.__coinsDict,
-                                                             self.__getGhostsPaths(gameState))
+                                                             self.__getGhostsCoordsCopy(self.__ghostsCoords))
         return gameState
 
 
@@ -314,7 +318,6 @@ class TestInfo():
         self.possibleValues = list()
         self.chosenDirection = None
         self.chosenValue = None
-
 
 
 class PathToGhost():

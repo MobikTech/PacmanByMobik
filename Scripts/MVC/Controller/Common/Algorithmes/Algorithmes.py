@@ -42,7 +42,7 @@ class Algorithmes():
         startNode = gameInfo.map.nodesDictionary[gameInfo.player.coords.getTuple()]
         ghostsCoords = list()
         for ghost in gameInfo.ghosts:
-            ghostsCoords.append(ghost.coords)
+            ghostsCoords.append(ghost.coords.__copy__())
 
         result = MinimaxFuncs.minimax(DEPTH, None,
                                       GameState(startNode, ghostsCoords, gameInfo.map, gameInfo.coinsContainer.coinsDict, 0))
