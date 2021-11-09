@@ -45,7 +45,7 @@ class Algorithmes():
             ghostsCoords.append(ghost.coords.__copy__())
 
         result = MinimaxFuncs.minimax(DEPTH, None,
-                                      GameState(startNode, ghostsCoords, gameInfo.map, gameInfo.coinsContainer.coinsDict, 0))
+                                      GameState(startNode, gameInfo.map, gameInfo.coinsContainer.coinsDict, 0, ghostsCoords=ghostsCoords))
         # testInfo = result[2]
         # print('-----------')
         # for possibleValue in testInfo.possibleValues:
@@ -119,14 +119,10 @@ class NodesNavigationFuncs():
             if map.grid[newCoords.getTuple()] != CELL_TYPE.WALL:
                 directionsList.append(direction)
 
-        print('new node')
-        print(directionsList)
         rayLength = 1
         while True:
-            print('while')
             for direction in directionsList:
                 newCoords = coords.getOffsetted(direction, rayLength)
-                print(newCoords.getTuple())
                 if map.grid[newCoords.getTuple()] == CELL_TYPE.CROSSROAD:
                     return nodes[newCoords.getTuple()]
             rayLength += 1

@@ -12,60 +12,44 @@ class ExtraInfo():
         self.coinsDict = coinsDict
         self.ghosts = ghosts
 
+
 class GameState():
-    def __init__(self, playerNode: Node, ghostsCoords: list, map: Map, coinsDict: dict, evaluation: int):
+    def __init__(self, playerNode: Node, map: Map, coinsDict: dict, evaluation: int, ghostsCoords: list = None, ghostsInfos: list = None):
         self.__map = map
         self.__coinsDict = coinsDict
-        self.__ghostsCoords = ghostsCoords
         self.playerNode = playerNode
-        self.ghostsPaths: list[PathToGhost] = self.__initGhostPaths(playerNode, self.__getGhostsCoordsCopy(ghostsCoords))
         self.evaluation = evaluation
-
-    def __copy__(self):
-        return GameState(self.playerNode, self.__getGhostsCoordsCopy(self.__ghostsCoords), self.__map, self.__coinsDict, self.evaluation)
-
-    def __getGhostsCoordsCopy(self, ghostsCoords: list):
-        newGhostsCoords = list()
-        for coords in ghostsCoords:
-            newGhostsCoords.append(coords.__copy__())
-        return newGhostsCoords
-
-    def __initGhostPaths(self, startNode: Node, ghostsCoords: list):
-        unfoundedGhostsNearestNodes = self.__defineGhostsNearestNode(ghostsCoords)
-        ghostsPaths = self.__bfsForGhosts(startNode, unfoundedGhostsNearestNodes)
-        return ghostsPaths
+        if ghostsCoords:
+            self.ghostsInfos = self.__getGhostsInfos(playerNode, ghostsCoords)
+        elif ghostsInfos:
+            self.ghostsInfos = ghostsInfos
 
     def __defineGhostsNearestNode(self, ghostsCoords):
         unfoundedGhostsNearestNodes = dict()
         for ghostCoords in ghostsCoords:
-            unfoundedGhostsNearestNodes[ghostCoords.getTuple()] = NodesNavigationFuncs.findNearestNodeTo(ghostCoords, self.__map)
+            unfoundedGhostsNearestNodes[ghostCoords.getTuple()] = NodesNavigationFuncs.findNearestNodeTo(ghostCoords,
+                                                                                                         self.__map)
         return unfoundedGhostsNearestNodes
 
-    def __bfsForGhosts(self, startNode, unfoundedGhostsNearestNodes):
-        ghostsPaths = list()
+    def __getGhostsInfos(self, playerNode, ghostsCoords):
+        ghostsInfos = list()
+        unfoundedGhostsNearestNodes = self.__defineGhostsNearestNode(ghostsCoords)
 
-        queue = [(startNode, [startNode])]
+        queue = [(playerNode, [playerNode])]
         visited = list()
         while queue:
             node, path = queue.pop(0)
             visited.append(node)
 
             if len(unfoundedGhostsNearestNodes.keys()) < 1:
-                return ghostsPaths
+                return ghostsInfos
 
             for ghostPosition in list(unfoundedGhostsNearestNodes.keys()):
                 ghostCoords = Coords(ghostPosition)
                 if node == unfoundedGhostsNearestNodes[ghostPosition]:
                     direction, offset = NodesNavigationFuncs.getOffsetFromNearestNode(path[-1], ghostCoords)
-                    ghostsPaths.append(PathToGhost(ghostCoords, path, offset, direction))
+                    ghostsInfos.append(GhostInfo(ghostCoords, path, offset, direction))
                     unfoundedGhostsNearestNodes.pop(ghostPosition)
-
-            # for ghostCoords in list(unfoundedGhostsNearestNodes.keys()):
-            #     # ghostCoords = ghostCoords.__copy__()
-            #     if node == unfoundedGhostsNearestNodes[ghostCoords]:
-            #         direction, offset = NodesNavigationFuncs.getOffsetFromNearestNode(path[-1], ghostCoords)
-            #         ghostsPathDict[ghostCoords] = PathToGhost(path, offset, direction)
-            #         unfoundedGhostsNearestNodes.pop(ghostCoords)
 
             for nodeInfo in node.neighborsNodeInfo.values():
                 if nodeInfo == None:
@@ -75,118 +59,71 @@ class GameState():
                     newPath.append(nodeInfo.node)
                     queue.append((nodeInfo.node, newPath))
 
-    def __moveGhostsByPath(self, distance):
-        for ghostPath in self.ghostsPaths:
-            ghostCoords = ghostPath.ghostCoords
-            ghostCoordsCopy = ghostCoords.__copy__()
-            ghostPathCopy = ghostPath.__copy__()
-            distanceLeft = distance
-            # pathToGhost = self.ghostsPaths[ghostCoords]
+    def __getGhostsInfosCopy(self):
+        newGhostsInfos = list()
+        for ghostInfo in self.ghostsInfos:
+            newGhostsInfos.append(ghostInfo.__copy__())
+        return newGhostsInfos
 
-            while distanceLeft > 0:
+    def __makeGhostsTurn(self, distance):
+        for ghostInfo in self.ghostsInfos:
+            self.__moveGhostByPath(ghostInfo, distance)
 
-                if ghostPath.extraLength > 0:
-                    # todo substitute by func
-                    directionToPlayer = DirectionManager.getOppositeToDirection(ghostPath.extraDirection)
-                    distanceToLastNode = int(min(distanceLeft, ghostPath.extraLength))
-                    ghostCoords.offsetTo(directionToPlayer, distanceToLastNode)
-                    distanceLeft -= distanceToLastNode
-                    ghostPath.extraLength -= distanceToLastNode
-                    if ghostPath.extraLength == 0:
-                        ghostPath.extraDirection = None
+    def __moveGhostByPath(self, ghostInfo, distance):
+        ghostCoords = ghostInfo.ghostCoords
+        distanceLeft = distance
 
-                elif len(ghostPath.nodeList) < 2:
-                    break
+        while distanceLeft > 0:
 
+            if ghostInfo.extraLength > 0:
+                directionToPlayer = DirectionManager.getOppositeToDirection(ghostInfo.extraDirection)
+                distanceToLastNode = int(min(distanceLeft, ghostInfo.extraLength))
+                ghostCoords.offsetTo(directionToPlayer, distanceToLastNode)
+                distanceLeft -= distanceToLastNode
+                ghostInfo.extraLength -= distanceToLastNode
+                if ghostInfo.extraLength == 0:
+                    ghostInfo.extraDirection = None
+
+            elif len(ghostInfo.nodeList) < 2:
+                break
+
+            else:
+                directionToPlayer, distanceBetweenNeighbors = NodesNavigationFuncs.getDirectionAndLengthBetweenNodes(
+                    ghostInfo.nodeList[-1],
+                    ghostInfo.nodeList[-2])
+                distanceToPlayer = int(min(distanceLeft, distanceBetweenNeighbors))
+                ghostCoords.offsetTo(directionToPlayer, distanceToPlayer)
+                ghostInfo.nodeList.pop()
+                distanceLeft -= distanceToPlayer
+                ghostInfo.extraLength = distanceBetweenNeighbors - distanceToPlayer
+                if ghostInfo.extraLength > 0:
+                    ghostInfo.extraDirection = DirectionManager.getOppositeToDirection(directionToPlayer)
                 else:
-                    directionToPlayer, distanceBetweenNeighbors = NodesNavigationFuncs.getDirectionAndLengthBetweenNodes(
-                        ghostPath.nodeList[-1],
-                        ghostPath.nodeList[-2])
-                    distanceToPlayer = int(min(distanceLeft, distanceBetweenNeighbors))
-                    ghostCoords.offsetTo(directionToPlayer, distanceToPlayer)
-                    # ghostPath.nodeList.pop(-1)
-                    ghostPath.nodeList.pop()
-                    distanceLeft -= distanceToPlayer
-                    ghostPath.extraLength = distanceBetweenNeighbors - distanceToPlayer
-                    if ghostPath.extraLength > 0:
-                        ghostPath.extraDirection = DirectionManager.getOppositeToDirection(directionToPlayer)
-                    else:
-                        ghostPath.extraDirection = None
+                    ghostInfo.extraDirection = None
 
-                if self.__map.grid[ghostCoords.getTuple()] == CELL_TYPE.WALL:
-                    return
-                    raise Exception('Incorrect coords {0}, it is a wall'.format(ghostCoords.__str__()))
+            if self.__map.grid[ghostCoords.getTuple()] == CELL_TYPE.WALL:
+                raise Exception('Incorrect coords {0}, it is a wall'.format(ghostCoords.__str__()))
 
-
-        # for ghostCoords in self.ghostsPaths.keys():
-        #     ghostCoordsCopy = ghostCoords.__copy__()
-        #     ghostPathCopy = self.ghostsPaths[ghostCoordsCopy].__copy__()
-        #     distanceLeft = distance
-        #     pathToGhost = self.ghostsPaths[ghostCoords]
-        #
-        #     while distanceLeft > 0:
-        #
-        #         if pathToGhost.extraLength > 0:
-        #             # todo substitute by func
-        #             directionToPlayer = DirectionManager.getOppositeToDirection(pathToGhost.extraDirection)
-        #             distanceToLastNode = int(min(distanceLeft, pathToGhost.extraLength))
-        #             ghostCoords.offsetTo(directionToPlayer, distanceToLastNode)
-        #             distanceLeft -= distanceToLastNode
-        #             pathToGhost.extraLength -= distanceToLastNode
-        #             if pathToGhost.extraLength == 0:
-        #                 pathToGhost.extraDirection = None
-        #
-        #         elif len(pathToGhost.nodeList) < 2:
-        #             break
-        #
-        #         else:
-        #             directionToPlayer, distanceBetweenNeighbors = NodesNavigationFuncs.getDirectionAndLengthBetweenNodes(
-        #                 pathToGhost.nodeList[-1],
-        #                 pathToGhost.nodeList[-2])
-        #             distanceToPlayer = int(min(distanceLeft, distanceBetweenNeighbors))
-        #             ghostCoords.offsetTo(directionToPlayer, distanceToPlayer)
-        #             pathToGhost.nodeList.pop(-1)
-        #             distanceLeft -= distanceToPlayer
-        #             pathToGhost.extraLength = distanceBetweenNeighbors - distanceToPlayer
-        #             if pathToGhost.extraLength > 0:
-        #                 pathToGhost.extraDirection = DirectionManager.getOppositeToDirection(directionToPlayer)
-        #             else:
-        #                 pathToGhost.extraDirection = None
-        #
-        #         if self.__map.grid[ghostCoords.getTuple()] == CELL_TYPE.WALL:
-        #             raise Exception('Incorrect coords {0}, it is a wall'.format(ghostCoords.__str__()))
-
-    def __getGhostsPaths(self, gameState):
-        ghostsCoords = list()
-        for ghostPath in gameState.ghostsPaths:
-            ghostsCoords.append(ghostPath.ghostCoords)
-        return ghostsCoords
-
-    def getOffsettedGameState(self, newPlayerNode: Node):
-        gameState = GameState(newPlayerNode, self.__getGhostsCoordsCopy(self.__ghostsCoords), self.__map, self.__coinsDict, 0)
-        gameStateCopy = gameState.__copy__()
-        traveledDistance = NodesNavigationFuncs.getLengthBetweenNeighbors(self.playerNode.coords, newPlayerNode.coords)
-        gameState.__moveGhostsByPath(traveledDistance)
-
-        gameStateCopy.__moveGhostsByPath(traveledDistance)
-
-        gameState.evaluation = MinimaxFuncs.evaluateNeighbor(self.playerNode,
-                                                             newPlayerNode,
-                                                             gameState.__coinsDict,
-                                                             self.__getGhostsCoordsCopy(self.__ghostsCoords))
-        return gameState
-
+    @staticmethod
+    def getNewGameState(oldGameState, newPlayerNode):
+        traveledDistance = NodesNavigationFuncs.getLengthBetweenNeighbors(oldGameState.playerNode.coords,
+                                                                          newPlayerNode.coords)
+        newGameState = GameState(newPlayerNode, oldGameState.__map,
+                                 oldGameState.__coinsDict, 0, ghostsInfos=oldGameState.__getGhostsInfosCopy())
+        newGameState.__makeGhostsTurn(traveledDistance)
+        newGameState.evaluation = MinimaxFuncs.evaluateNeighbor(oldGameState.playerNode,
+                                                                newPlayerNode,
+                                                                oldGameState.__coinsDict,
+                                                                newGameState.ghostsInfos)
+        return newGameState
 
 
 class MinimaxFuncs():
     COIN_COST = 1
     GHOST_COST = -10
 
-
     @staticmethod
-    def evaluateNeighbor(startNode, nextNode,
-                         coinsDict: dict,
-                         ghostsCoords):
+    def evaluateNeighbor(startNode, nextNode, coinsDict: dict, ghostsInfos):
         from Scripts.MVC.Controller.Common.Algorithmes.Algorithmes import MapNavigationFuncs
         direction = MapNavigationFuncs.getDirectionToNeighbour(startNode.coords, nextNode.coords)
         evaluateValue = 0
@@ -194,8 +131,8 @@ class MinimaxFuncs():
         while currentCoords != nextNode.coords:
             if coinsDict.keys().__contains__(currentCoords.getTuple()):
                 evaluateValue += MinimaxFuncs.COIN_COST
-            for ghostCoords in ghostsCoords:
-                if currentCoords == ghostCoords:
+            for ghostInfo in ghostsInfos:
+                if currentCoords == ghostInfo.ghostCoords:
                     evaluateValue += MinimaxFuncs.GHOST_COST
             currentCoords.offsetTo(direction, 1)
         if coinsDict.keys().__contains__(currentCoords.getTuple()):
@@ -260,7 +197,6 @@ class MinimaxFuncs():
     #                 break
     #         return bestDirection, bestValue
 
-
     @staticmethod
     def minimax(depth, prestartNode, gameState: GameState):
         # should return best direction
@@ -274,8 +210,8 @@ class MinimaxFuncs():
         totalNodeValue = 0
         bestValue = -INFINITY
 
-        # todo test
-        testInfo = TestInfo()
+        # # todo test
+        # testInfo = TestInfo()
 
         for nodeDirection in NodesNavigationFuncs.getNodeDirections(gameState.playerNode):
             neighborInfo = gameState.playerNode.neighborsNodeInfo[nodeDirection]
@@ -283,8 +219,7 @@ class MinimaxFuncs():
             newPlayerNode = neighborInfo.node
             if newPlayerNode == prestartNode:
                 continue
-            newGameState = gameState.getOffsettedGameState(newPlayerNode)
-
+            newGameState = GameState.getNewGameState(gameState, newPlayerNode)
 
             neighborEvaluation = newGameState.evaluation
             # neighborsEvaluation += neighborEvaluation
@@ -293,17 +228,17 @@ class MinimaxFuncs():
             fullValue = totalValue + neighborEvaluation * depth * 2
             totalNodeValue += fullValue
 
-            # todo test
-            testInfo.possibleValues.append((fullValue, nodeDirection))
-
+            # # todo test
+            # testInfo.possibleValues.append((fullValue, nodeDirection))
+            #
 
             if fullValue > bestValue:
                 bestValue = fullValue
                 bestDirection = nodeDirection
 
-        # todo test
-        testInfo.chosenValue = bestValue
-        testInfo.chosenDirection = bestDirection
+        # # todo test
+        # testInfo.chosenValue = bestValue
+        # testInfo.chosenDirection = bestDirection
         # print('-----------')
         # for possibleValue in testInfo.possibleValues:
         #     print('{0} - {1}'.format(possibleValue[0], possibleValue[1]))
@@ -320,13 +255,15 @@ class TestInfo():
         self.chosenValue = None
 
 
-class PathToGhost():
+class GhostInfo():
     def __init__(self, ghostCoords, nodeList, extraLength, extraDirection):
-        self.ghostCoords = ghostCoords
-        self.nodeList = nodeList
+        self.ghostCoords = ghostCoords.__copy__()
+        self.nodeList = nodeList.copy()
         self.extraLength = extraLength
         self.extraDirection = extraDirection
 
     def __copy__(self):
-        return PathToGhost(self.ghostCoords.__copy__(), self.nodeList.copy(), self.extraLength, self.extraDirection)
+        return GhostInfo(self.ghostCoords, self.nodeList, self.extraLength, self.extraDirection)
 
+    def getGhostsCoords(self):
+        pass

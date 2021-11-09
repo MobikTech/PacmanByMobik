@@ -24,8 +24,8 @@ class MazeGenerator():
 
         self.backgroundImage = None
 
-        self.__setGridFromFile('pacman_map_1_31x31.png')
-        # self.__setGridRandomly()
+        # self.__setGridFromFile('pacman_map_1_31x31.png')
+        self.__setGridRandomly()
         self.__scanGrid()
         self.__defineNodesNeighbours()
         self.__setBackground()
@@ -45,10 +45,6 @@ class MazeGenerator():
                     self.playerStartDirection = random.choice(
                         DirectionManager.getPossibleDirections(self.playerStartPosition, self.grid))
                 elif currentCell == CELL_TYPE.GHOSTS_START_POSITION:
-                    # # todo remove
-                    # self.ghostsStartPosition = Coords((14, 2))
-                    # self.ghostsStartDirection = DIRECTIONS.DOWN
-
                     self.ghostsStartPosition = Coords((x, y))
                     self.ghostsStartDirection = random.choice(
                         DirectionManager.getPossibleDirections(self.ghostsStartPosition, self.grid))

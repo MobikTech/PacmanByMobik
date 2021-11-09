@@ -3,7 +3,7 @@ from Scripts.MVC.Controller.GameLoop import MotionManager, GameLoop
 from Scripts.MVC.View.Timer import Timer
 import csv
 
-LAUNCHES_COUNT = 3
+LAUNCHES_COUNT = 20
 
 class TestController():
     WIN_MARKER = 'win'
