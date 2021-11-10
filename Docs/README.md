@@ -1,2 +1,2 @@
 # PacmanByMobik
-My variant of implemetation Pacman game on Python using 'pygame' package. For university project.
+My implemetation of Pacman game on Python using 'pygame' package for university project.
