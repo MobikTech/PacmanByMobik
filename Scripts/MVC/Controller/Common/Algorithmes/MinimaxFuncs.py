@@ -142,119 +142,119 @@ class MinimaxFuncs():
             evaluateValue += MinimaxFuncs.COIN_COST
         return evaluateValue
 
-    # @staticmethod
-    # def minimax(depth, isMaximizingPlayer, alpha, beta, gameState):
-    #     # should return best direction
-    #     # returned (direction, value)
-    #     INFINITY = 10000
-    #
-    #     if depth == 0:
-    #         return None, 0
-    #
-    #     if isMaximizingPlayer:
-    #         bestValue = -INFINITY
-    #         bestDirection = None
-    #
-    #         for nodeDirection in NodesNavigationFuncs.getNodeDirections(startNode):
-    #             neighborInfo = startNode.neighborsNodeInfo[nodeDirection]
-    #
-    #             newGameState = GameState(neighborInfo.node, gameState.ghostsPaths)
-    #
-    #             if neighborInfo.node == prestartNode:
-    #                 continue
-    #
-    #             currentValue = MinimaxFuncs.estimateNeighbor(startNode, neighborInfo.node, extraInfo.coinsDict,
-    #                                                          extraInfo.ghosts)
-    #             direction, value = MinimaxFuncs.minimax(neighborInfo.node, depth - 1, False, alpha, beta, extraInfo,
-    #                                                     startNode)
-    #             currentValue += value
-    #
-    #             if currentValue >= bestValue:
-    #                 bestValue = currentValue
-    #                 bestDirection = nodeDirection
-    #
-    #             alpha = max(alpha, bestValue)
-    #             if beta <= alpha:
-    #                 break
-    #         return bestDirection, bestValue
-    #     else:
-    #         bestValue = +INFINITY
-    #         bestDirection = None
-    #         for nodeDirection in NodesNavigationFuncs.getNodeDirections(startNode):
-    #             neighborInfo = startNode.neighborsNodeInfo[nodeDirection]
-    #             if neighborInfo.node == prestartNode:
-    #                 continue
-    #
-    #             currentValue = MinimaxFuncs.estimateNeighbor(startNode, neighborInfo.node, extraInfo.coinsDict,
-    #                                                          extraInfo.ghosts)
-    #             direction, value = MinimaxFuncs.minimax(neighborInfo.node, depth - 1, True, alpha, beta, extraInfo,
-    #                                                     startNode)
-    #             currentValue += value
-    #
-    #             if currentValue <= bestValue:
-    #                 bestValue = currentValue
-    #                 bestDirection = nodeDirection
-    #
-    #             beta = min(beta, bestValue)
-    #             if beta <= alpha:
-    #                 break
-    #         return bestDirection, bestValue
+    @staticmethod
+    def minimax(startNode, depth, isMaximizingPlayer, alpha, beta, prestartNode):
+        # should return best direction
+        # returned (direction, value)
+        INFINITY = 10000
+
+        if depth == 0:
+            return None, 0
+
+        if isMaximizingPlayer:
+            bestValue = -INFINITY
+            bestDirection = None
+
+            for nodeDirection in NodesNavigationFuncs.getNodeDirections(startNode):
+                neighborInfo = startNode.neighborsNodeInfo[nodeDirection]
+
+                newGameState = GameState(neighborInfo.node, gameState.ghostsPaths)
+
+                if neighborInfo.node == prestartNode:
+                    continue
+
+                currentValue = MinimaxFuncs.evaluateNeighbor(startNode, neighborInfo.node, extraInfo.coinsDict,
+                                                             extraInfo.ghosts)
+                direction, value = MinimaxFuncs.minimax(neighborInfo.node, depth - 1, False, alpha, beta, extraInfo,
+                                                        startNode)
+                currentValue += value
+
+                if currentValue >= bestValue:
+                    bestValue = currentValue
+                    bestDirection = nodeDirection
+
+                alpha = max(alpha, bestValue)
+                if beta <= alpha:
+                    break
+            return bestDirection, bestValue
+        else:
+            bestValue = +INFINITY
+            bestDirection = None
+            for nodeDirection in NodesNavigationFuncs.getNodeDirections(startNode):
+                neighborInfo = startNode.neighborsNodeInfo[nodeDirection]
+                if neighborInfo.node == prestartNode:
+                    continue
+
+                currentValue = MinimaxFuncs.estimateNeighbor(startNode, neighborInfo.node, extraInfo.coinsDict,
+                                                             extraInfo.ghosts)
+                direction, value = MinimaxFuncs.minimax(neighborInfo.node, depth - 1, True, alpha, beta, extraInfo,
+                                                        startNode)
+                currentValue += value
+
+                if currentValue <= bestValue:
+                    bestValue = currentValue
+                    bestDirection = nodeDirection
+
+                beta = min(beta, bestValue)
+                if beta <= alpha:
+                    break
+            return bestDirection, bestValue
 
     @staticmethod
     def evaluateDirection(depth, restBranchValue, betweenNeighborsValue):
         fullValue = restBranchValue + betweenNeighborsValue * depth
         return fullValue
 
-    @staticmethod
-    def minimax(depth, prestartNode, gameState: GameState):
-        # should return best direction
-        # returned (bestDirection, totalValue)
-        INFINITY = 10000
-
-        if depth == 0:
-            return None, 0
-
-        bestDirection = None
-        totalNodeValue = 0
-        bestValue = -INFINITY
-
-        # # todo test
-        testInfo = TestInfo()
-
-        for nodeDirection in NodesNavigationFuncs.getNodeDirections(gameState.playerNode):
-            neighborInfo = gameState.playerNode.neighborsNodeInfo[nodeDirection]
-
-            newPlayerNode = neighborInfo.node
-            if newPlayerNode == prestartNode:
-                continue
-            newGameState = GameState.getNewGameState(gameState, newPlayerNode)
-
-            neighborEvaluation = newGameState.evaluation
-            # neighborsEvaluation += neighborEvaluation
-
-            (direction, restBranchValue) = MinimaxFuncs.minimax(depth - 1, gameState.playerNode, newGameState)
-            # fullValue = (restBranchValue + neighborEvaluation * 4 ) * depth
-            fullValue = MinimaxFuncs.evaluateDirection(depth, restBranchValue, neighborEvaluation)
-            totalNodeValue += fullValue
-
-            # todo test
-            testInfo.possibleValues.append((fullValue, nodeDirection))
-
-
-            if fullValue > bestValue:
-                bestValue = fullValue
-                bestDirection = nodeDirection
-
-        # todo test
-        testInfo.chosenValue = bestValue
-        testInfo.chosenDirection = bestDirection
-        print('-----------')
-        for possibleValue in testInfo.possibleValues:
-            print('{0} - {1}'.format(possibleValue[0], possibleValue[1]))
-        print('chosen value - {0}'.format(testInfo.chosenValue))
-        print('chosen direction - {0}'.format(testInfo.chosenDirection))
-
-        return bestDirection, totalNodeValue
+    # @staticmethod
+    # def minimax(depth, prestartNode, gameState: GameState):
+    #     # should return best direction
+    #     # returned (bestDirection, totalValue)
+    #     INFINITY = 10000
+    #
+    #     if depth == 0:
+    #         return None, 0
+    #
+    #     bestDirection = None
+    #     totalNodeValue = 0
+    #     bestValue = -INFINITY
+    #
+    #     # # todo test
+    #     testInfo = TestInfo()
+    #
+    #     for nodeDirection in NodesNavigationFuncs.getNodeDirections(gameState.playerNode):
+    #         neighborInfo = gameState.playerNode.neighborsNodeInfo[nodeDirection]
+    #
+    #         newPlayerNode = neighborInfo.node
+    #         if newPlayerNode == prestartNode:
+    #             continue
+    #         newGameState = GameState.getNewGameState(gameState, newPlayerNode)
+    #
+    #         neighborEvaluation = newGameState.evaluation
+    #         # neighborsEvaluation += neighborEvaluation
+    #
+    #         (direction, restBranchValue) = MinimaxFuncs.minimax(depth - 1, gameState.playerNode, newGameState)
+    #         # fullValue = (restBranchValue + neighborEvaluation * 4 ) * depth
+    #         fullValue = MinimaxFuncs.evaluateDirection(depth, restBranchValue, neighborEvaluation)
+    #         totalNodeValue += fullValue
+    #
+    #         # todo test
+    #         testInfo.possibleValues.append((fullValue, nodeDirection))
+    #
+    #
+    #         if fullValue > bestValue:
+    #             bestValue = fullValue
+    #             bestDirection = nodeDirection
+    #
+    #     # todo test
+    #     testInfo.chosenValue = bestValue
+    #     testInfo.chosenDirection = bestDirection
+    #     print('-----------')
+    #     for possibleValue in testInfo.possibleValues:
+    #         print('{0} - {1}'.format(possibleValue[0], possibleValue[1]))
+    #     print('chosen value - {0}'.format(testInfo.chosenValue))
+    #     print('chosen direction - {0}'.format(testInfo.chosenDirection))
+    #
+    #     return bestDirection, totalNodeValue
 
 
 class TestInfo():
