@@ -24,7 +24,7 @@ class Events():
 class GameInfo():
     PLAYER_MOVEMENT_ALGORITHM = SEARCH_ALGORITHMES.ASTAR
     GHOSTS_MOVEMENT_ALGORITHM = SEARCH_ALGORITHMES.BFS
-    MAX_HP_AMOUNT = 10
+    MAX_HP_AMOUNT = 3
     SCORE_STEP_COUNTER = 10
 
     def __init__(self):
@@ -61,9 +61,9 @@ class GameInfo():
         self.randomGhosts.append(Ghost(self.map.ghostsStartPosition,
                                        self.map.ghostsStartDirection,
                                        GHOST_TYPE.PINKY))
-        self.randomGhosts.append(Ghost(self.map.ghostsStartPosition,
-                                       self.map.ghostsStartDirection,
-                                       GHOST_TYPE.GREENKY))
+        # self.randomGhosts.append(Ghost(self.map.ghostsStartPosition,
+        #                                self.map.ghostsStartDirection,
+        #                                GHOST_TYPE.GREENKY))
         self.ghosts.extend(self.nonRandomGhosts)
         self.ghosts.extend(self.randomGhosts)
 

@@ -14,7 +14,7 @@ class ExtraInfo():
 
 
 class GameState():
-    def __init__(self, playerNode: Node, map: Map, coinsDict: dict, evaluation: int, ghostsCoords: list = None, ghostsInfos: list = None):
+    def __init__(self, playerNode: Node, map: Map, coinsDict: dict, evaluation: int, ghostsCoords:list=None, ghostsInfos:list=None):
         self.__map = map
         self.__coinsDict = coinsDict
         self.playerNode = playerNode
@@ -119,8 +119,8 @@ class GameState():
 
 
 class MinimaxFuncs():
-    COIN_COST = 1
-    GHOST_COST = -10
+    COIN_COST = 0
+    GHOST_COST = -30
 
     @staticmethod
     def evaluateNeighbor(startNode, nextNode, coinsDict: dict, ghostsInfos):
@@ -128,6 +128,8 @@ class MinimaxFuncs():
         direction = MapNavigationFuncs.getDirectionToNeighbour(startNode.coords, nextNode.coords)
         evaluateValue = 0
         currentCoords = startNode.coords.__copy__()
+        #todo remove
+        roadLength = 0
         while currentCoords != nextNode.coords:
             if coinsDict.keys().__contains__(currentCoords.getTuple()):
                 evaluateValue += MinimaxFuncs.COIN_COST
@@ -135,6 +137,7 @@ class MinimaxFuncs():
                 if currentCoords == ghostInfo.ghostCoords:
                     evaluateValue += MinimaxFuncs.GHOST_COST
             currentCoords.offsetTo(direction, 1)
+            roadLength += 1
         if coinsDict.keys().__contains__(currentCoords.getTuple()):
             evaluateValue += MinimaxFuncs.COIN_COST
         return evaluateValue
@@ -198,6 +201,11 @@ class MinimaxFuncs():
     #         return bestDirection, bestValue
 
     @staticmethod
+    def evaluateDirection(depth, restBranchValue, betweenNeighborsValue):
+        fullValue = restBranchValue + betweenNeighborsValue * depth
+        return fullValue
+
+    @staticmethod
     def minimax(depth, prestartNode, gameState: GameState):
         # should return best direction
         # returned (bestDirection, totalValue)
@@ -211,7 +219,7 @@ class MinimaxFuncs():
         bestValue = -INFINITY
 
         # # todo test
-        # testInfo = TestInfo()
+        testInfo = TestInfo()
 
         for nodeDirection in NodesNavigationFuncs.getNodeDirections(gameState.playerNode):
             neighborInfo = gameState.playerNode.neighborsNodeInfo[nodeDirection]
@@ -224,26 +232,27 @@ class MinimaxFuncs():
             neighborEvaluation = newGameState.evaluation
             # neighborsEvaluation += neighborEvaluation
 
-            (direction, totalValue) = MinimaxFuncs.minimax(depth - 1, gameState.playerNode, newGameState)
-            fullValue = totalValue + neighborEvaluation * depth * 2
+            (direction, restBranchValue) = MinimaxFuncs.minimax(depth - 1, gameState.playerNode, newGameState)
+            # fullValue = (restBranchValue + neighborEvaluation * 4 ) * depth
+            fullValue = MinimaxFuncs.evaluateDirection(depth, restBranchValue, neighborEvaluation)
             totalNodeValue += fullValue
 
-            # # todo test
-            # testInfo.possibleValues.append((fullValue, nodeDirection))
-            #
+            # todo test
+            testInfo.possibleValues.append((fullValue, nodeDirection))
+
 
             if fullValue > bestValue:
                 bestValue = fullValue
                 bestDirection = nodeDirection
 
-        # # todo test
-        # testInfo.chosenValue = bestValue
-        # testInfo.chosenDirection = bestDirection
-        # print('-----------')
-        # for possibleValue in testInfo.possibleValues:
-        #     print('{0} - {1}'.format(possibleValue[0], possibleValue[1]))
-        # print('chosen value - {0}'.format(testInfo.chosenValue))
-        # print('chosen direction - {0}'.format(testInfo.chosenDirection))
+        # todo test
+        testInfo.chosenValue = bestValue
+        testInfo.chosenDirection = bestDirection
+        print('-----------')
+        for possibleValue in testInfo.possibleValues:
+            print('{0} - {1}'.format(possibleValue[0], possibleValue[1]))
+        print('chosen value - {0}'.format(testInfo.chosenValue))
+        print('chosen direction - {0}'.format(testInfo.chosenDirection))
 
         return bestDirection, totalNodeValue
 

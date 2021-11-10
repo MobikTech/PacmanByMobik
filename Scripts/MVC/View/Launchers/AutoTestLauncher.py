@@ -4,6 +4,8 @@ from Scripts.MVC.View.Timer import Timer
 import csv
 
 LAUNCHES_COUNT = 20
+DATASETS_PATH = 'D:\Projects\PYTHON\PacmanByMobik\Datasets'
+
 
 class TestController():
     WIN_MARKER = 'win'
@@ -93,7 +95,7 @@ class ResultContainer():
         print('WinRate: {0}%'.format(int((winCount / (winCount + loseCount)) * 100)))
 
     def crateCSVFile(self):
-        with open('GameStatistic.csv', 'w', newline='') as file:
+        with open(DATASETS_PATH + '\GameStatistic.csv', 'w', newline='') as file:
             writer = csv.writer(file)
             writer.writerow(self.headers)
             # currentIndex = 0
