@@ -14,15 +14,12 @@ class ExtraInfo():
 
 
 class GameState():
-    def __init__(self, playerNode: Node, map: Map, coinsDict: dict, evaluation: int, ghostsCoords:list=None, ghostsInfos:list=None):
+    def __init__(self, playerNode: Node, map: Map, coinsDict: dict, evaluation: int, ghostsCoords:list):
         self.__map = map
         self.__coinsDict = coinsDict
         self.playerNode = playerNode
         self.evaluation = evaluation
-        if ghostsCoords:
-            self.ghostsInfos = self.__getGhostsInfos(playerNode, ghostsCoords)
-        elif ghostsInfos:
-            self.ghostsInfos = ghostsInfos
+        self.ghostsInfos = self.__getGhostsInfos(playerNode, ghostsCoords)
 
     def __defineGhostsNearestNode(self, ghostsCoords):
         unfoundedGhostsNearestNodes = dict()
@@ -104,12 +101,18 @@ class GameState():
             if self.__map.grid[ghostCoords.getTuple()] == CELL_TYPE.WALL:
                 raise Exception('Incorrect coords {0}, it is a wall'.format(ghostCoords.__str__()))
 
+    def __getGhostsCoordsCopy(self):
+        ghostsCoords = []
+        for info in self.ghostsInfos:
+            ghostsCoords.append(info.ghostCoords.__copy__())
+        return ghostsCoords
+
     @staticmethod
     def getNewGameState(oldGameState, newPlayerNode):
         traveledDistance = NodesNavigationFuncs.getLengthBetweenNeighbors(oldGameState.playerNode.coords,
                                                                           newPlayerNode.coords)
         newGameState = GameState(newPlayerNode, oldGameState.__map,
-                                 oldGameState.__coinsDict, 0, ghostsInfos=oldGameState.__getGhostsInfosCopy())
+                                 oldGameState.__coinsDict, 0, oldGameState.__getGhostsCoordsCopy())
         newGameState.__makeGhostsTurn(traveledDistance)
         newGameState.evaluation = MinimaxFuncs.evaluateNeighbor(oldGameState.playerNode,
                                                                 newPlayerNode,
@@ -120,7 +123,7 @@ class GameState():
 
 class MinimaxFuncs():
     COIN_COST = 1
-    GHOST_COST = -100
+    GHOST_COST = -10
 
     @staticmethod
     def evaluateNeighbor(startNode, nextNode, coinsDict: dict, ghostsInfos):
@@ -256,13 +259,13 @@ class MinimaxFuncs():
                 bestDirection = nodeDirection
 
         # todo test
-        testInfo.chosenValue = bestValue
-        testInfo.chosenDirection = bestDirection
-        print('-----------')
-        for possibleValue in testInfo.possibleValues:
-            print('{0} - {1}'.format(possibleValue[0], possibleValue[1]))
-        print('chosen value - {0}'.format(testInfo.chosenValue))
-        print('chosen direction - {0}'.format(testInfo.chosenDirection))
+        # testInfo.chosenValue = bestValue
+        # testInfo.chosenDirection = bestDirection
+        # print('-----------')
+        # for possibleValue in testInfo.possibleValues:
+        #     print('{0} - {1}'.format(possibleValue[0], possibleValue[1]))
+        # print('chosen value - {0}'.format(testInfo.chosenValue))
+        # print('chosen direction - {0}'.format(testInfo.chosenDirection))
 
 
         totalNodeValue = totalNodeValue / neighborCount

@@ -24,7 +24,7 @@ class Events():
 class GameInfo():
     PLAYER_MOVEMENT_ALGORITHM = SEARCH_ALGORITHMES.ASTAR
     GHOSTS_MOVEMENT_ALGORITHM = SEARCH_ALGORITHMES.BFS
-    MAX_HP_AMOUNT = 10
+    MAX_HP_AMOUNT = 3
     SCORE_STEP_COUNTER = 10
 
     def __init__(self):
@@ -77,6 +77,7 @@ class GameLoop():
         pass
 
     def update(self):
+        # print('playing')
         MotionManager.tryMoveEntities(self.info, self.events)
         self.__collisionHandler()
         CoinsManager.tryDeleteCoin(self.info, self.events.coinCollected)
