@@ -44,8 +44,14 @@ class Algorithmes():
         for ghost in gameInfo.ghosts:
             ghostsCoords.append(ghost.coords.__copy__())
 
-        result = MinimaxFuncs.minimax(DEPTH, None,
-                                      GameState(startNode, gameInfo.map, gameInfo.coinsContainer.coinsDict, 0, ghostsCoords=ghostsCoords))
+        result = MinimaxFuncs.minimax(DEPTH,
+                                      None,
+                                      GameState(startNode,
+                                                gameInfo.map,
+                                                gameInfo.coinsContainer.coinsDict,
+                                                0,
+                                                ghostsCoords=ghostsCoords),
+                                      [])
         # testInfo = result[2]
         # print('-----------')
         # for possibleValue in testInfo.possibleValues:

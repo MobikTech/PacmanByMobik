@@ -114,27 +114,32 @@ class GameState():
         newGameState.evaluation = MinimaxFuncs.evaluateNeighbor(oldGameState.playerNode,
                                                                 newPlayerNode,
                                                                 oldGameState.__coinsDict,
-                                                                newGameState.ghostsInfos)
+                                                                oldGameState.ghostsInfos)
         return newGameState
 
 
 class MinimaxFuncs():
-    COIN_COST = 0
-    GHOST_COST = -30
+    COIN_COST = 1
+    GHOST_COST = -100
 
     @staticmethod
     def evaluateNeighbor(startNode, nextNode, coinsDict: dict, ghostsInfos):
         from Scripts.MVC.Controller.Common.Algorithmes.Algorithmes import MapNavigationFuncs
         direction = MapNavigationFuncs.getDirectionToNeighbour(startNode.coords, nextNode.coords)
+        # print(direction)
         evaluateValue = 0
         currentCoords = startNode.coords.__copy__()
         #todo remove
         roadLength = 0
         while currentCoords != nextNode.coords:
+            # print()
+            # print('coords - ' + str(currentCoords))
             if coinsDict.keys().__contains__(currentCoords.getTuple()):
                 evaluateValue += MinimaxFuncs.COIN_COST
             for ghostInfo in ghostsInfos:
+                # print('ghost - ' + str(ghostInfo.ghostCoords))
                 if currentCoords == ghostInfo.ghostCoords:
+                    # print(roadLength)
                     evaluateValue += MinimaxFuncs.GHOST_COST
             currentCoords.offsetTo(direction, 1)
             roadLength += 1
@@ -202,11 +207,11 @@ class MinimaxFuncs():
 
     @staticmethod
     def evaluateDirection(depth, restBranchValue, betweenNeighborsValue):
-        fullValue = restBranchValue + betweenNeighborsValue * depth
+        fullValue = (restBranchValue + betweenNeighborsValue) * depth
         return fullValue
 
     @staticmethod
-    def minimax(depth, prestartNode, gameState: GameState):
+    def minimax(depth, prestartNode, gameState: GameState, path: list):
         # should return best direction
         # returned (bestDirection, totalValue)
         INFINITY = 10000
@@ -217,14 +222,20 @@ class MinimaxFuncs():
         bestDirection = None
         totalNodeValue = 0
         bestValue = -INFINITY
+        path.append(gameState.playerNode)
 
         # # todo test
         testInfo = TestInfo()
 
-        for nodeDirection in NodesNavigationFuncs.getNodeDirections(gameState.playerNode):
+        neighborDirections = NodesNavigationFuncs.getNodeDirections(gameState.playerNode)
+        neighborCount = len(neighborDirections)
+        for nodeDirection in neighborDirections:
             neighborInfo = gameState.playerNode.neighborsNodeInfo[nodeDirection]
-
             newPlayerNode = neighborInfo.node
+
+            if path.__contains__(newPlayerNode):
+                continue
+
             if newPlayerNode == prestartNode:
                 continue
             newGameState = GameState.getNewGameState(gameState, newPlayerNode)
@@ -232,14 +243,13 @@ class MinimaxFuncs():
             neighborEvaluation = newGameState.evaluation
             # neighborsEvaluation += neighborEvaluation
 
-            (direction, restBranchValue) = MinimaxFuncs.minimax(depth - 1, gameState.playerNode, newGameState)
+            (direction, restBranchValue) = MinimaxFuncs.minimax(depth - 1, gameState.playerNode, newGameState, path.copy())
             # fullValue = (restBranchValue + neighborEvaluation * 4 ) * depth
             fullValue = MinimaxFuncs.evaluateDirection(depth, restBranchValue, neighborEvaluation)
             totalNodeValue += fullValue
 
             # todo test
             testInfo.possibleValues.append((fullValue, nodeDirection))
-
 
             if fullValue > bestValue:
                 bestValue = fullValue
@@ -254,6 +264,8 @@ class MinimaxFuncs():
         print('chosen value - {0}'.format(testInfo.chosenValue))
         print('chosen direction - {0}'.format(testInfo.chosenDirection))
 
+
+        totalNodeValue = totalNodeValue / neighborCount
         return bestDirection, totalNodeValue
 
 
