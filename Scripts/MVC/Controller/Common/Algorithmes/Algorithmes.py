@@ -38,7 +38,6 @@ class Algorithmes():
         DEPTH = 5
         from Scripts.MVC.Controller.Common.Algorithmes.MinimaxFuncs import MinimaxFuncs, GameState
 
-
         startNode = gameInfo.map.nodesDictionary[gameInfo.player.coords.getTuple()]
         ghostsCoords = list()
         for ghost in gameInfo.ghosts:
@@ -52,12 +51,26 @@ class Algorithmes():
                                                 0,
                                                 ghostsCoords=ghostsCoords),
                                       [])
-        # testInfo = result[2]
-        # print('-----------')
-        # for possibleValue in testInfo.possibleValues:
-        #     print(possibleValue)
-        # print('chosen value - {0}'.format(testInfo.chosenValue))
-        # print('chosen direction - {0}'.format(testInfo.chosenDirection))
+        return result
+
+    @staticmethod
+    def expectimax(gameInfo):
+        DEPTH = 5
+        from Scripts.MVC.Controller.Common.Algorithmes.MinimaxFuncs import MinimaxFuncs, GameState
+
+        startNode = gameInfo.map.nodesDictionary[gameInfo.player.coords.getTuple()]
+        ghostsCoords = list()
+        for ghost in gameInfo.ghosts:
+            ghostsCoords.append(ghost.coords.__copy__())
+
+        result = MinimaxFuncs.expectimax(DEPTH,
+                                         None,
+                                         GameState(startNode,
+                                                   gameInfo.map,
+                                                   gameInfo.coinsContainer.coinsDict,
+                                                   0,
+                                                   ghostsCoords=ghostsCoords),
+                                         [])
         return result
 
     @staticmethod

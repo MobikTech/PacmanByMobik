@@ -5,6 +5,7 @@ import csv
 
 LAUNCHES_COUNT = 20
 DATASETS_PATH = 'D:\Projects\PYTHON\PacmanByMobik\Datasets'
+CURRENT_ALGORITHM = Algorithmes.minimax
 
 
 class TestController():
@@ -13,6 +14,7 @@ class TestController():
 
     def __init__(self):
         self.gameLooper = GameLoop()
+        MotionManager.PLAYER_ALGORITHM = CURRENT_ALGORITHM
         self.isRunning = True
         self.result = None
 
@@ -107,6 +109,8 @@ class ResultContainer():
 
 resultContainer = ResultContainer()
 for counter in range(LAUNCHES_COUNT):
+    if counter == 12:
+        CURRENT_ALGORITHM = Algorithmes.expectimax
     testController = TestController()
     testController.start()
     while testController.isRunning:

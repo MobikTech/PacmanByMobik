@@ -7,6 +7,7 @@ class CoinsContainer():
     def __init__(self, map: Map):
         self.coinsDict: dict[tuple[int, int]] = dict()
         self.__spawnCoins(map)
+        self.startCoinsCount = len(self.coinsDict)
 
     def __spawnCoins(self, map):
         coinsPositionsList = map.roadsPositionsList + list(map.nodesDictionary.keys())

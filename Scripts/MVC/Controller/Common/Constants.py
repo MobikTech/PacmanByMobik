@@ -80,3 +80,7 @@ class GHOST_TYPE():
 class SEARCH_ALGORITHMES():
     BFS = 1
     ASTAR = 2
+
+class AI_ALGORITHMES():
+    MINIMAX = 1,
+    EXPECTIMAX = 2

@@ -61,9 +61,9 @@ class GameInfo():
         self.randomGhosts.append(Ghost(self.map.ghostsStartPosition,
                                        self.map.ghostsStartDirection,
                                        GHOST_TYPE.PINKY))
-        # self.randomGhosts.append(Ghost(self.map.ghostsStartPosition,
-        #                                self.map.ghostsStartDirection,
-        #                                GHOST_TYPE.GREENKY))
+        self.randomGhosts.append(Ghost(self.map.ghostsStartPosition,
+                                       self.map.ghostsStartDirection,
+                                       GHOST_TYPE.GREENKY))
         self.ghosts.extend(self.nonRandomGhosts)
         self.ghosts.extend(self.randomGhosts)
 
