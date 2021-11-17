@@ -153,28 +153,20 @@ class MinimaxFuncs():
     def evaluateNeighbor(startNode, nextNode, coinsDict: dict, ghostsInfos):
         from Scripts.MVC.Controller.Common.Algorithmes.Algorithmes import MapNavigationFuncs
         direction = MapNavigationFuncs.getDirectionToNeighbour(startNode.coords, nextNode.coords)
-        # print(direction)
         evaluateValue = 0
         currentCoords = startNode.coords.__copy__()
-        #todo remove
-        roadLength = 0
         coinsCost = MinimaxFuncs.COIN_COST
         if len(coinsDict) < 20:
             coinsCost += MinimaxFuncs.EXTRA_COINS_COST
         elif len(coinsDict) < 10:
             coinsCost += MinimaxFuncs.EXTRA_COINS_COST * 2
         while currentCoords != nextNode.coords:
-            # print()
-            # print('coords - ' + str(currentCoords))
             if coinsDict.keys().__contains__(currentCoords.getTuple()):
                 evaluateValue += coinsCost
             for ghostInfo in ghostsInfos:
-                # print('ghost - ' + str(ghostInfo.ghostCoords))
                 if currentCoords == ghostInfo.ghostCoords:
-                    # print(roadLength)
                     evaluateValue += MinimaxFuncs.GHOST_COST
             currentCoords.offsetTo(direction, 1)
-            roadLength += 1
         if coinsDict.keys().__contains__(currentCoords.getTuple()):
             evaluateValue += MinimaxFuncs.COIN_COST
         return evaluateValue
@@ -266,7 +258,6 @@ class MinimaxFuncs():
             newGameState = GameState.getNewGameState(gameState, newPlayerNode, AI_ALGORITHMES.MINIMAX)
 
             neighborEvaluation = newGameState.evaluation
-            # neighborsEvaluation += neighborEvaluation
 
             (direction, restBranchValue) = MinimaxFuncs.minimax(depth - 1, gameState.playerNode, newGameState, path.copy())
 
