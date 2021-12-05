@@ -3,7 +3,7 @@ from Scripts.MVC.Model.Navigation.Coords import Coords
 
 
 class Ghost(object):
-    SPEED = 1
+    SPEED = 25
 
     def __init__(self,
                  startCoords: Coords,

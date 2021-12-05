@@ -1,6 +1,6 @@
 CELL_SIZE = 25
 CELL_HALF_SIZE = CELL_SIZE / 2
-FPS = 60
+FPS = 120
 MAIN_DIRECTORY = 'D:\Projects\PYTHON\PacmanByMobik'
 
 

@@ -14,10 +14,10 @@ class SpritesContainer():
                                          gameLooper.info.player.startCoords,
                                          MAIN_DIRECTORY + '\Sprites\Pacman.png')
         self.ghostsSprites = dict()
-        self.__initGhosts()
         self.coinsSprites = dict()
         # to hide coins
         self.__initCoins()
+        self.__initGhosts()
 
     def __initGhosts(self):
         for ghost in self.gameLooper.info.ghosts:

@@ -3,7 +3,7 @@ from Scripts.MVC.Controller.Common.CommonClasses import CoordsConverter
 
 
 class Player(object):
-    SPEED = 1
+    SPEED = 25
 
     def __init__(self,
                  startCoords: Coords,

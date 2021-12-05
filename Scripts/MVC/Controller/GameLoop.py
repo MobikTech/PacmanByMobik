@@ -76,21 +76,20 @@ class GameLoop():
     def start(self):
         pass
 
-    def update(self):
-        # print('playing')
-        MotionManager.tryMoveEntities(self.info, self.events)
+    def update(self, playerDirection: str=None):
+        # if playerDirection == None:
+        #     possibleDirections = DirectionManager.getPossibleDirections(self.info.player.coords, self.info.map.grid)
+        #     MotionManager.tryMoveEntities(self.info, self.events, random.choice(possibleDirections))
+        # else:
+        #     MotionManager.tryMoveEntities(self.info, self.events, playerDirection)
+        MotionManager.tryMoveEntities(self.info, self.events, playerDirection)
         self.__collisionHandler()
         CoinsManager.tryDeleteCoin(self.info, self.events.coinCollected)
-        # if CoinsManager.tryDeleteCoin(self.info, self.events.coinCollected):
-        #     if self.info.collectedCoins == 10:
-        #         self.__addGhost(True)
-        #     elif self.info.collectedCoins == 20:
-        #         self.__addGhost(True)
 
     def __collisionHandler(self):
         if self.__tryCollideWithGhosts():
             self.info.hp -= 1
-            self.__respawnAll()
+            self.respawnAll()
 
     def __tryCollideWithGhosts(self):
         for ghost in self.info.ghosts:
@@ -98,11 +97,11 @@ class GameLoop():
                 return True
         return False
 
-    def __respawnAll(self):
+    def respawnAll(self):
         self.info.player.respawn()
         for ghost in self.info.ghosts:
             ghost.respawn()
-        MotionManager.resetPlayerPathProps()
+        # MotionManager.resetPlayerPathProps()
 
     def __addGhost(self, isRandomGhost):
         ghostTypes = [GHOST_TYPE.RIKKO,
@@ -135,81 +134,102 @@ class CoinsManager():
 
 
 class MotionManager():
-    currentPlayerStartPoint = None
-    currentPlayerTarget = None
-    currentPlayerPath = None
-    currentPlayerDirection = None
-    currentPlayerDirectionIndex = None
-
-    PLAYER_ALGORITHM = Algorithmes.minimax
+    # currentPlayerStartPoint = None
+    # currentPlayerTarget = None
+    # currentPlayerPath = None
+    # currentPlayerDirection = None
+    # currentPlayerDirectionIndex = None
+    #
+    # PLAYER_ALGORITHM = Algorithmes.minimax
+    #
+    # @staticmethod
+    # def resetPlayerPathProps():
+    #     MotionManager.currentPlayerStartPoint = None
+    #     MotionManager.currentPlayerTarget = None
+    #     MotionManager.currentPlayerPath = None
+    #     MotionManager.currentPlayerDirection = None
+    #     MotionManager.currentPlayerDirectionIndex = None
 
     @staticmethod
-    def resetPlayerPathProps():
-        MotionManager.currentPlayerStartPoint = None
-        MotionManager.currentPlayerTarget = None
-        MotionManager.currentPlayerPath = None
-        MotionManager.currentPlayerDirection = None
-        MotionManager.currentPlayerDirectionIndex = None
-
-    @staticmethod
-    def tryMoveEntities(gameInfo: GameInfo, events: Events):
+    def tryMoveEntities(gameInfo: GameInfo, events: Events, playerDirection: str):
 
         # MotionManager.__tryMovePlayer(gameInfo, events.playerPathCalculated)
-        MotionManager.__tryMovePlayerMinimax(gameInfo)
+        # MotionManager.__tryMovePlayerMinimax(gameInfo)
+        MotionManager.__tryMovePlayerManually(gameInfo, playerDirection)
         MotionManager.__tryMoveGhosts(gameInfo, events.ghostsPathCalculated)
+
+
 
     # region PlayerMovement
     @staticmethod
-    def __tryMovePlayer(gameInfo: GameInfo, event):
+    def __tryMovePlayerManually(gameInfo: GameInfo, direction: str):
+        # if direction == None:
+        #     return
 
-        if MotionManager.currentPlayerPath == None:
-            MotionManager.__recalculatePlayerPath(gameInfo)
+        if direction != gameInfo.player.direction and \
+                CoordsBehaviour.inCellCenter(gameInfo.player.coordsWorld) and \
+                direction in DirectionManager.getPossibleDirections(gameInfo.player.coords, gameInfo.map.grid):
+            gameInfo.player.direction = direction
 
-        elif gameInfo.player.coords == MotionManager.currentPlayerTarget:
-            MotionManager.__recalculatePlayerPath(gameInfo)
-
-        if CoordsBehaviour.inCellCenter(gameInfo.player.coordsWorld):
-            MotionManager.__tryChangeDirection(gameInfo)
-
+        if CoordsBehaviour.inCellCenter(gameInfo.player.coordsWorld) and \
+                gameInfo.map.grid[gameInfo.player.coords.getOffsetted(gameInfo.player.direction, 1).getTuple()] not in \
+            [CELL_TYPE.ROAD,
+            CELL_TYPE.CROSSROAD,
+            CELL_TYPE.PACMAN_START_POSITION]:
+            return
         gameInfo.player.move()
 
-        if event != None:
-            event(MotionManager.currentPlayerPath,
-                  MotionManager.currentPlayerStartPoint,
-                  MotionManager.currentPlayerTarget,
-                  COLORS.WHITE)
-
-    @staticmethod
-    def __tryMovePlayerMinimax(gameInfo: GameInfo):
-
-        player = gameInfo.player
-        if CoordsBehaviour.inCellCenter(player.coordsWorld) and \
-                gameInfo.map.grid[player.coords.getTuple()] == CELL_TYPE.CROSSROAD:
-            direction, value = MotionManager.PLAYER_ALGORITHM(gameInfo)
-            player.direction = direction
-            # print(value)
-        player.move()
-
-    @staticmethod
-    def __tryChangeDirection(gameInfo: GameInfo):
-        currentCellType = gameInfo.map.grid[gameInfo.player.coords.getTuple()]
-        if currentCellType == CELL_TYPE.CROSSROAD:
-            MotionManager.currentPlayerDirectionIndex += 1
-            MotionManager.currentPlayerDirection = \
-                gameInfo.player.direction = \
-                MotionManager.currentPlayerPath[MotionManager.currentPlayerDirectionIndex]
-
-    @staticmethod
-    def __recalculatePlayerPath(gameInfo: GameInfo):
-        MotionManager.currentPlayerDirectionIndex = 0
-        MotionManager.currentPlayerStartPoint = gameInfo.player.coords
-        # MotionManager.currentPlayerTarget = Coords((22, 14))
-        MotionManager.currentPlayerTarget = Coords(random.choice(gameInfo.map.roadsPositionsList))
-        MotionManager.currentPlayerPath = Algorithmes.getPathToTarget(GameInfo.PLAYER_MOVEMENT_ALGORITHM,
-                                                                      MotionManager.currentPlayerStartPoint,
-                                                                      MotionManager.currentPlayerTarget,
-                                                                      gameInfo.map)
-        MotionManager.currentPlayerDirection = gameInfo.player.direction = MotionManager.currentPlayerPath[0]
+    # @staticmethod
+    # def __tryMovePlayer(gameInfo: GameInfo, event):
+    #
+    #     if MotionManager.currentPlayerPath == None:
+    #         MotionManager.__recalculatePlayerPath(gameInfo)
+    #
+    #     elif gameInfo.player.coords == MotionManager.currentPlayerTarget:
+    #         MotionManager.__recalculatePlayerPath(gameInfo)
+    #
+    #     if CoordsBehaviour.inCellCenter(gameInfo.player.coordsWorld):
+    #         MotionManager.__tryChangeDirection(gameInfo)
+    #
+    #     gameInfo.player.move()
+    #
+    #     if event != None:
+    #         event(MotionManager.currentPlayerPath,
+    #               MotionManager.currentPlayerStartPoint,
+    #               MotionManager.currentPlayerTarget,
+    #               COLORS.WHITE)
+    #
+    # @staticmethod
+    # def __tryMovePlayerMinimax(gameInfo: GameInfo):
+    #
+    #     player = gameInfo.player
+    #     if CoordsBehaviour.inCellCenter(player.coordsWorld) and \
+    #             gameInfo.map.grid[player.coords.getTuple()] == CELL_TYPE.CROSSROAD:
+    #         direction, value = MotionManager.PLAYER_ALGORITHM(gameInfo)
+    #         player.direction = direction
+    #         # print(value)
+    #     player.move()
+    #
+    # @staticmethod
+    # def __tryChangeDirection(gameInfo: GameInfo):
+    #     currentCellType = gameInfo.map.grid[gameInfo.player.coords.getTuple()]
+    #     if currentCellType == CELL_TYPE.CROSSROAD:
+    #         MotionManager.currentPlayerDirectionIndex += 1
+    #         MotionManager.currentPlayerDirection = \
+    #             gameInfo.player.direction = \
+    #             MotionManager.currentPlayerPath[MotionManager.currentPlayerDirectionIndex]
+    #
+    # @staticmethod
+    # def __recalculatePlayerPath(gameInfo: GameInfo):
+    #     MotionManager.currentPlayerDirectionIndex = 0
+    #     MotionManager.currentPlayerStartPoint = gameInfo.player.coords
+    #     # MotionManager.currentPlayerTarget = Coords((22, 14))
+    #     MotionManager.currentPlayerTarget = Coords(random.choice(gameInfo.map.roadsPositionsList))
+    #     MotionManager.currentPlayerPath = Algorithmes.getPathToTarget(GameInfo.PLAYER_MOVEMENT_ALGORITHM,
+    #                                                                   MotionManager.currentPlayerStartPoint,
+    #                                                                   MotionManager.currentPlayerTarget,
+    #                                                                   gameInfo.map)
+    #     MotionManager.currentPlayerDirection = gameInfo.player.direction = MotionManager.currentPlayerPath[0]
 
     # endregion
 
