@@ -7,15 +7,7 @@ from Scripts.MVC.View.PathDrawer import PathDrawer
 from Scripts.MVC.View.SpritesContatiner import SpritesContainer
 from Scripts.MVC.View.UIContatiner import UIContainer
 
-# class Actions():
-#     UP = 1
-#     RIGHT = 2
-#     DOWN = 3
-#     LEFT = 4
-
 class GameController(object):
-
-
     def __init__(self):
         pygame.init()
         self.screen = pygame.display.set_mode(SCREEN.SCREEN_SIZE)
@@ -28,13 +20,6 @@ class GameController(object):
         self.start()
 
     def play_step(self, actions):
-        # if actions == None:
-        #     raise NotImplementedError
-        # actions[0] = UP
-        # actions[1] = RIGHT
-        # actions[2] = DOWN
-        # actions[3] = LEFT
-        # print(actions)
         if sum(actions) != 1:
             raise NotImplementedError
         direction = None
@@ -66,9 +51,6 @@ class GameController(object):
 
     def reset(self):
         self.__init__()
-        # self.gameLooper.info.score = 0
-        # self.gameLooper.info.hp = GameInfo.MAX_HP_AMOUNT
-        # self.gameLooper.respawnAll()
 
     def get_screen_image(self):
         return pygame.surfarray.array3d(pygame.display.get_surface())

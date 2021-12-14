@@ -14,25 +14,20 @@ BATCH_SIZE = 1000
 LR = 0.001
 ACTIONS_COUNT = 4
 INPUT_SIZE = GRID.COLUMNS_COUNT * GRID.ROWS_COUNT
-# INPUT_SIZE = GRID.COLUMNS_COUNT * GRID.ROWS_COUNT * CELL_SIZE * CELL_SIZE
 
 class Agent:
     def __init__(self):
         self.n_games = 0
         self.epsilon = 0 # randomness
-        self.gamma = 0.9 # discount rate (< 1)
+        self.gamma = 0.9
         self.memory = deque(maxlen=MAX_MEMORY) #popleft()
         self.model = Linaer_Q_Network(INPUT_SIZE, 256, ACTIONS_COUNT)
         self.trainer = QTrainer(self.model, lr=LR, gamma=self.gamma)
 
     def get_state(self, game: GameController):
-        # screen_image = torch.from_numpy(game.get_screen_image())
-        # screen_image = torch.flatten(screen_image, 1)
-        # return screen_image
         image = game.get_screen_image()
         image = skimage.color.rgb2gray(image)
         image = skimage.transform.resize(image, (GRID.COLUMNS_COUNT, GRID.ROWS_COUNT))
-
         return np.array(image).flatten()
 
     def remember(self, state, action, reward, next_state, game_over):
@@ -64,8 +59,7 @@ class Agent:
             final_move[move_index] = 1
         return final_move
 
-def train():
-    print('train')
+def start():
     plot_scores = []
     plot_mean_scores = []
     total_score = 0
@@ -78,7 +72,6 @@ def train():
 
         actions = agent.get_actions(state_old)
 
-        #todo
         reward, game_over, score = game.play_step(actions)
         state_new = agent.get_state(game)
 
@@ -88,7 +81,6 @@ def train():
         agent.remember(state_old, actions, reward, state_new, game_over)
 
         if game_over:
-            #todo
             game.reset()
             agent.n_games += 1
             agent.train_long_memory()
@@ -108,9 +100,7 @@ def train():
         iter += 1
 
 
-# if __name__ == '__main__':
-#     train()
-train()
+start()
 
 
 

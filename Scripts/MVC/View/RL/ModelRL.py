@@ -40,10 +40,7 @@ class QTrainer:
         actions = torch.tensor(actions, dtype=torch.long)
         rewards = torch.tensor(rewards, dtype=torch.float)
 
-        # (n, x)
-
         if len(states.shape) == 1:
-            # (1, x)
             states = torch.unsqueeze(states, 0)
             next_states = torch.unsqueeze(next_states, 0)
             actions = torch.unsqueeze(actions, 0)
