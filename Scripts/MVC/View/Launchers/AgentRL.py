@@ -6,7 +6,7 @@ import skimage
 from Scripts.MVC.Controller.Common.Constants import GRID, CELL_SIZE
 from Scripts.MVC.View.Launchers.Game import GameController
 from collections import deque
-from Scripts.MVC.View.RL.ModelRL import Linaer_Q_Network, QTrainer
+from Scripts.MVC.View.RL.ModelRL import Q_Network, QTrainer
 from Scripts.MVC.View.RL.Helper import plot
 
 MAX_MEMORY = 100_000
@@ -18,10 +18,10 @@ INPUT_SIZE = GRID.COLUMNS_COUNT * GRID.ROWS_COUNT
 class Agent:
     def __init__(self):
         self.n_games = 0
-        self.epsilon = 0 # randomness
+        self.epsilon = 0
         self.gamma = 0.9
         self.memory = deque(maxlen=MAX_MEMORY) #popleft()
-        self.model = Linaer_Q_Network(INPUT_SIZE, 256, ACTIONS_COUNT)
+        self.model = Q_Network(INPUT_SIZE, 256, ACTIONS_COUNT)
         self.trainer = QTrainer(self.model, lr=LR, gamma=self.gamma)
 
     def get_state(self, game: GameController):
@@ -33,7 +33,7 @@ class Agent:
     def remember(self, state, action, reward, next_state, game_over):
         self.memory.append((state, action, reward, next_state, game_over))
 
-    def train_long_memory(self):
+    def train_final_memory(self):
         if len(self.memory) > BATCH_SIZE:
             mini_sample = random.sample(self.memory, BATCH_SIZE) # list of tuples
         else:
@@ -42,11 +42,10 @@ class Agent:
         states, actions, rewards, next_states, game_overs = zip(*mini_sample)
         self.trainer.train_step(states, actions, rewards, next_states, game_overs)
 
-    def train_short_memory(self, state, action, reward, next_state, game_over):
+    def train_frame_memory(self, state, action, reward, next_state, game_over):
         self.trainer.train_step(state, action, reward, next_state, game_over)
 
     def get_actions(self, state):
-        # random moves: tradeoff exploration / exploitation
         self.epsilon = 80 - self.n_games
         final_move = np.zeros(ACTIONS_COUNT)
         if random.randint(0, 200) < self.epsilon:
@@ -75,7 +74,7 @@ def start():
         reward, game_over, score = game.play_step(actions)
         state_new = agent.get_state(game)
 
-        agent.train_short_memory(state_old, actions, reward,
+        agent.train_frame_memory(state_old, actions, reward,
                                  state_new, game_over)
 
         agent.remember(state_old, actions, reward, state_new, game_over)
@@ -83,7 +82,7 @@ def start():
         if game_over:
             game.reset()
             agent.n_games += 1
-            agent.train_long_memory()
+            agent.train_final_memory()
 
             if score > record:
                 record = score

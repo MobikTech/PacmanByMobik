@@ -40,7 +40,7 @@ class GameController(object):
         if self.gameLooper.info.score > score_old:
             reward += 1
         if self.gameLooper.info.hp < hp_old:
-            reward -= 5
+            reward -= 1
 
         game_over = False
         if self.gameLooper.info.hp < 1:
